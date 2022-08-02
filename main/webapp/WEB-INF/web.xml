@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="4.0" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee                       http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd">
+	<servlet>
+		<servlet-name>index-servlet</servlet-name>
+		<servlet-class>controllers.IndexController</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>index-servlet</servlet-name>
+		<url-pattern>/index.jsp</url-pattern>
+	</servlet-mapping>
+	<filter>
+		<filter-name>common-filter</filter-name>
+		<filter-class>filters.CommonFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>common-filter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+</web-app>
