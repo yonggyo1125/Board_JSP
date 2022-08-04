@@ -3,10 +3,18 @@
 <%@ taglib prefix="layout" tagdir="/WEB-INF/tags/layouts" %>
 <layout:common>
 	<jsp:attribute name="header">
-		상단
+		<div class="logo">게시판</div>
+	</jsp:attribute>
+	<jsp:attribute name="main_menu">
+	<nav>
+		<a href='#'>메뉴1</a>
+		<a href='#'>메뉴2</a>
+		<a href='#'>메뉴3</a>
+		<a href='#'>메뉴4</a>
+	</nav>
 	</jsp:attribute>
 	<jsp:attribute name="footer">
-		하단
+		&copy;CopyRight ...
 	</jsp:attribute>
 	<jsp:body>
 		<jsp:doBody />
