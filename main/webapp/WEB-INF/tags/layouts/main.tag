@@ -16,6 +16,7 @@
 				<fmt:message key="SITE_TITLE" />
 			</a>
 		</section>
+		
 	</jsp:attribute>
 	<jsp:attribute name="main_menu">
 	<nav>
