@@ -1,5 +1,24 @@
 ## 마이바티스 연동
+
+#### src/main/sql/member.sql
+
+```sql
+CREATE TABLE `member` (
+   `memNo` int NOT NULL AUTO_INCREMENT,
+   `memId` varchar(45) NOT NULL COMMENT '아이디',
+   `memPw` varchar(60) NOT NULL COMMENT '비밀번호',
+   `memNm` varchar(45) NOT NULL COMMENT '회원명',
+   `email` varchar(60) DEFAULT NULL COMMENT '이메일 정보',
+   `mobile` varchar(11) DEFAULT NULL COMMENT '휴대전화번호',
+   `regDt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+   `modDt` datetime DEFAULT NULL,
+   PRIMARY KEY (`memNo`),
+   UNIQUE KEY `memId_UNIQUE` (`memId`)
+);
+```
+
 #### mybatis-config.xml : 운영중(production) 설정 파일
+
 - mybatis-dev-config.xml : 개발중(production) 설정 파일 
 
 - 마이바티스에서 LocalDateTime를 인식하기 위해서 하기 항목 추가
@@ -323,7 +342,7 @@ public class MemberDao {
 }
 ```
 
-
+* * * 
 
 ## 회원 가입 기능 구현
 
@@ -442,3 +461,5 @@ public class MemberJoinService implements MemberValidator {
 ### Mobile 
 
 ![image2](https://github.com/yonggyo1125/curriculum300H/blob/main/5.JSP2%20%26%20JSP%20%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8(60%EC%8B%9C%EA%B0%84)/6%EC%9D%BC%EC%B0%A8(3h)%20-%20%EB%8D%B0%EC%9D%B4%ED%84%B0%EB%B2%A0%EC%9D%B4%EC%8A%A4/images/project/image2.png)
+
+* * * 
