@@ -1,465 +1,438 @@
-## 마이바티스 연동
+## 로그인 
 
-#### src/main/sql/member.sql
+### 로그인 양식 추가 
 
-```sql
-CREATE TABLE `member` (
-   `memNo` int NOT NULL AUTO_INCREMENT,
-   `memId` varchar(45) NOT NULL COMMENT '아이디',
-   `memPw` varchar(60) NOT NULL COMMENT '비밀번호',
-   `memNm` varchar(45) NOT NULL COMMENT '회원명',
-   `email` varchar(60) DEFAULT NULL COMMENT '이메일 정보',
-   `mobile` varchar(11) DEFAULT NULL COMMENT '휴대전화번호',
-   `regDt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-   `modDt` datetime DEFAULT NULL,
-   PRIMARY KEY (`memNo`),
-   UNIQUE KEY `memId_UNIQUE` (`memId`)
-);
-```
-
-#### mybatis-config.xml : 운영중(production) 설정 파일
-
-- mybatis-dev-config.xml : 개발중(production) 설정 파일 
-
-- 마이바티스에서 LocalDateTime를 인식하기 위해서 하기 항목 추가
-	- [mvnrepository]에서 [MyBatis TypeHandlers JSR310](https://mvnrepository.com/artifact/org.mybatis/mybatis-typehandlers-jsr310/1.0.2) jar 파일 다운받아 /WEB-INF/lib 에 추가할 것 
-
-```xml
-<typeHandlers>
-	<typeHandler handler="org.apache.ibatis.type.LocalDateTypeHandler" />
- /typeHandlers>
-```
-
-- SQL 수행 및 수행 결과 매핑을 위한 Mapper 설정
+#### src/main/java/controllers.member.LoginController.java
 
 ```
-<mappers>
-	<mapper resource="models/member/MemberMapper.xml" />
-</mappers>
-```
+package controllers.member;
 
-- 마이바티스 SQL 실행 로그 및 자세한 오류 확인을 위해 log4j 연동
+import java.io.IOException;
 
-- [mvnrepository]에서 [Apache Log4j](https://mvnrepository.com/artifact/log4j/log4j/1.2.17) jar 파일 다운받아 /WEB-INF/lib 에 추가할 것 
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-```xml
-<settings>
-	<setting name="logImpl" value="LOG4J" /> <!-- log4j log setting  -->
-</settings>
-```
+@WebServlet("/member/login")
+public class LoginController extends HttpServlet {
 
-#### /WEB-INF/classes/log4j.properties
-- log4j 설정
-
-```
-log4j.rootLogger=DEBUG, stdout
-
-log4j.appender.stdout=org.apache.log4j.ConsoleAppender
-log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
-log4j.appender.stdout.layout.ConversionPattern=%5p [%t] - %m%n
-```
-
-#### /WEB-INF/classes/application.properties
-
-- /WEB-INF/classes/application.properties 의 environment 설정에 따라 운영중 (mybatis-config.xml), 개발중(mybatis-dev-config.xml)으로 각기 다른 설정파일로 설정 정보 가져와 객체 생성
-
-```
-# 운영환경 설정 - production : 운영 중, development : 개발 중
-environment=development
-```
-
-#### src/main/java/mybatis/Connection.java
-
-- 데이터베이스 접속 객체 생성 
-
-```java 
-package mybatis;
-
-... 생략
-
-public class Connection {
-	/** 데이터베이스 접속 객체 */
-	private static SqlSessionFactory sqlSessionFactory;
-	
-	static {
-		// 접속정보를 명시하고 있는 XML의 경로 읽기
-		try {
-			ResourceBundle config = ResourceBundle.getBundle("application");
-			
-			String environment = config.getString("environment");
-			if (environment == null || environment.isBlank()) {
-				environment = "development";
-			}
-			
-			// mybatis-config.xml 파일의 경로 */
-			String configPath = null;
-			if (environment.equals("production")) { 
-				configPath = "mybatis/config/mybatis-config.xml";
-			} else { 
-				configPath = "mybatis/config/mybatis-dev-config.xml";
-			}
-
-			Reader reader = Resources.getResourceAsReader(configPath);
-			
-			if (sqlSessionFactory == null) {
-				sqlSessionFactory = new SqlSessionFactoryBuilder().build(reader);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	/** 데이터베이스 접속 세션 반환 */
-	public static SqlSession getSqlSession() {
-		return sqlSessionFactory.openSession();
+	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		
+		RequestDispatcher rd = req.getRequestDispatcher("/member/login.jsp");
+		rd.forward(req, resp);
 	}
 }
 ```
 
-#### src/main/java/models/member/MemberMapper.xml
+#### src/main/webapp/member/login.jsp
 
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="MemberMapper">
-	 <resultMap id="memberMap" type="models.member.MemberDto">
-	 	<result property="memNo" column="memNo" />
-	 	<result property="memId" column="memId" />
-	 	<result property="memPw" column="memPw" />
-	 	<result property="memNm" column="memNm" />
-	 	<result property="email" column="email" />
-	 	<result property="mobile" column="mobile" />
-	 	<result property="regDt" column="regDt" />
-	 	<result property="modDt" column="modDt" />
-	 </resultMap>
-	 
-	 <!-- 회원 조회 -->
-	 <select id="member" parameterType="models.member.MemberDto" resultMap="memberMap">
-	 	SELECT * FROM member WHERE memId=#{memId};
-	 </select>
-	 
-	 <!--  회원 조회 count -->
-	 <select id="memberCount" parameterType="models.member.MemberDto" resultType="int">
-	 	SELECT COUNT(*) FROM member WHERE memId=#{memId};
-	 </select>
-	 
-	 <!-- 회원목록 조회 -->
-	 <select id="members" parameterType="models.member.MembersDto" resultMap="memberMap">
-	 	SELECT * FROM member ORDER BY regDt DESC LIMIT #{offset}, #{limit};
-	 </select>
-	 
-	 <!-- 회원 등록 -->
-	 <insert id="register" 
-	 				parameterType="models.member.MemberDto" 
-	 				useGeneratedKeys="true"
-	 				keyProperty="memNo">
-	 	INSERT INTO member (memId, memNm, memPw, email, mobile) VALUES (#{memId}, #{memNm}, #{memPw}, #{email}, #{mobile});
-	 </insert>
-	 
-	 <!--  회원 수정  -->
-	 <update id="update" parameterType="models.member.MemberDto">
-	 	UPDATE member 
-	 		SET
-	 			memNm=#{memNm},
-	 			email=#{email},
-	 			mobile=#{mobile}
-			WHERE memId=#{memId}
-	 </update>
-	 
-	 <!--  비밀번호 변경  -->
-	 <update id="changePassword" parameterType="models.member.MemberDto">
-	 	UPDATE member
-	 		SET 
-	 			memPw=#{memPw}
-	 	WHERE memId=#{memId}
-	 </update>
-	 
-	 <!--  회원 삭제  -->
-	 <delete id="delete" parameterType="models.member.MemberDto">
-	 	DELETE FROM member WHERE memId=#{memId}
-	 </delete>
-</mapper>
+```jsp
+<%@ page contentType="text/html; charset=utf-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="layout" tagdir="/WEB-INF/tags/layouts" %>
+<fmt:setBundle basename="bundle.common" />
+<layout:main title="로그인" bodyClass="login">
+	<h1 class='mtitle'><fmt:message key="MEMBER_LOGIN" /></h1>
+	<form id="frmLogin" name="frmLogin" class="form_box" method="post" action="<c:url value="/member/login" />" target="ifrmProcess" autocomplete="off">
+		<dl>
+			<dt class='mobile_hidden'><fmt:message key="MEMBER_MEMID" /></dt>
+			<dd class="mobile_fullwidth">
+				<input type="text" name="memId" placeholder="<fmt:message key="MEMBER_MEMID" />" />
+			</dd>
+		</dl>
+		<dl>
+			<dt class='mobile_hidden'><fmt:message key="MEMBER_MEMPW" /></dt>
+			<dd class="mobile_fullwidth">
+				<input type="password" name="memPw" placeholder="<fmt:message key="MEMBER_MEMPW" />" />
+			</dd>
+		</dl>
+		<div class="btn_grp mt20">
+			<button type="submit" class="black"><fmt:message key="MEMBER_LOGIN" /></button>
+		</div>
+	</form>
+</layout:main>
 ```
 
-#### src/main/java/models/member/MemberDto.java
+### 로그인 처리 
 
-```java 
+#### src/main/java/models.member.MemberException.java
+
+```
 package models.member;
 
+import java.util.ResourceBundle;
+
+public class MemberException extends RuntimeException {
+	
+	public static ResourceBundle bundle;
+	public static String message;
+	
+	static {
+		bundle = ResourceBundle.getBundle("bundle.common");
+	}
+	
+	public MemberException() {}
+	
+	... 생략
+}
+```
+
+#### src/main/java/models/member/validation/MemberNotFoundException.java
+
+- 로그인 양식에 입력한 아이디로 검색했을 때 회원을 찾지 못하면 발생하는 예외
+- 기본 메세지 :  MEMBER_NOT_FOUND
+
+```java
+package models.member.validation;
+
+import models.member.MemberException;
+
 /**
- * 회원목록 Mapper 시에 페이징 추가 
+ * 회원을 찾지 못하였을 경우 발생 
  * 
  * @author YONGGYO
  *
  */
-public class MembersDto extends MemberDto {
-	private int offset; 
-	private int limit;
+public class MemberNotFoundException extends MemberException {
 	
-	public MembersDto() {}
-	
-	public MembersDto(int offset, int limit) {
-		this.offset = offset;
-		this.limit = limit;
-	}
-
-	public int getOffset() {
-		return offset;
+	public MemberNotFoundException() {
+		this(bundle.getString("MEMBER_NOT_FOUND"));
 	}
 	
-	public void setOffset(int offset) {
-		this.offset = offset;
-	}
-	
-	public int getLimit() {
-		return limit;
-	}
-	
-	public void setLimit(int limit) {
-		this.limit = limit;
-	}
-
-	@Override
-	public String toString() {
-		return "MembersDto [offset=" + offset + ", limit=" + limit + "]";
+	public MemberNotFoundException(String message) {
+		super(message);
 	}
 }
 ```
 
+#### src/main/java/models/member/validation/LoginFailedException.java
 
-#### src/main/java/models/member/MemberDao.java
+- 로그인 실패(비밀번호 불일치, 기타 사유 실패)시 발생하는 예외 
+
+```java
+package models.member.validation;
+
+import models.member.MemberException;
+
+/**
+ * 로그인 실패(비밀번호 불일치, 기타 사유 실패)시 발생 
+ * 
+ * @author YONGGYO
+ *
+ */
+public class LoginFailedException extends MemberException {
+	
+	public LoginFailedException() {
+		this(bundle.getString("MEMBER_LOGIN_FAILED"));
+	}
+	
+	public LoginFailedException(String message) {
+		super(message);
+	}
+}
+
+```
+
+#### /WEB-INF/classes/bundle/common_ko.properties 
+
+```
+... 생략
+
+MEMBER_NOT_FOUND=등록된 회원이 아닙니다.
+MEMBER_LOGIN_FAILED=로그인에 실패하였습니다.
+MEMBER_PASSWORD_INCORRECT=비밀번호가 일치하지 않습니다.
+```
+
+#### /WEB-INF/classes/bundle/common_en.properties 
+
+```
+... 생략
+
+MEMBER_NOT_FOUND=Not Registered Member.
+MEMBER_LOGIN_FAILED=Login is failed
+MEMBER_PASSWORD_INCORRECT=Your password is not correct.
+```
+
+#### src/main/java/models/member/LoginService.java
+
+- 로그인 처리 Service
 
 ```java
 package models.member;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.ResourceBundle;
 
-import org.apache.ibatis.session.SqlSession;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
-import mybatis.Connection;
-import models.member.MemberDto;
-import models.member.MembersDto;
+import org.mindrot.bcrypt.BCrypt;
 
-public class MemberDao {
+import models.member.validation.MemberValidator;
+import models.member.validation.LoginFailedException;
+import models.member.validation.MemberNotFoundException;
+
+/**
+ * 로그인 처리 
+ * 
+ * @author YONGGYO
+ *
+ */
+public class LoginService implements MemberValidator {
 	
-	private static MemberDao instance = new MemberDao();
+	public void login(HttpServletRequest request) {
+		ResourceBundle bundle = ResourceBundle.getBundle("bundle.common");
+		
+		/** 필수 입력 항목 체크 S */
+		HashMap<String, String> checkFields = new HashMap<>();
+		checkFields.put("memId", bundle.getString("MEMBER_REQUIRED_MEMID"));
+		checkFields.put("memPw", bundle.getString("MEMBER_REQUIRED_MEMPW"));
+		requiredCheck(request, checkFields);
+		/** 필수 입력 항목 체크 E */
+		
+		/** 아이디 및 비밀번호 체크 S */
+		String memId = request.getParameter("memId");
+		String memPw = request.getParameter("memPw");
+		
+		MemberDao dao = MemberDao.getInstance();
+		
+		MemberDto member = dao.get(memId);
+		if (member == null) {
+			throw new MemberNotFoundException();
+		}
+		
+		// 비밀번호 체크 - 해시 일치 여부 체크 
+		if (!BCrypt.checkpw(memPw, member.getMemPw())) {
+			throw new LoginFailedException(bundle.getString("MEMBER_PASSWORD_INCORRECT"));
+		}
+		
+		/** 아이디 및 비밀번호 체크 E */
+		
+		/** 회원 정보 세션 처리 S */
+		HttpSession session = request.getSession();
+		member.setMemPw("");
+		session.setAttribute("member", member);
+		/** 회원 정보 세션 처리 E */
+	}
+}
+```
+
+- 아이디, 비밀번호는 필수 입력항목으로 체크
+
+```java
+HashMap<String, String> checkFields = new HashMap<>();
+checkFields.put("memId", bundle.getString("MEMBER_REQUIRED_MEMID"));
+checkFields.put("memPw", bundle.getString("MEMBER_REQUIRED_MEMPW"));
+requiredCheck(request, checkFields);
+```
+
+- 등록된 회원인지 체크 
+
+```java
+MemberDto member = dao.get(memId);
+if (member == null) {
+	throw new MemberNotFoundException();
+}
+```
+
+- 비밀번호 해시 검증(Bcrypt) 
+
+```java
+if (BCrypt.checkpw(memPw, member.getMemPw())) {
+	throw new LoginFailedException(bundle.getString("MEMBER_PASSWORD_INCORRECT"));
+}
+```
+
+> Bcrypt 방식은 유동 해시로 동일한 값에 대해 생성할 때마다 다른 해시값이 생성되므로 해시 검증 알고리즘이 구현된 별도 메서드로 일치여부를 체크한다.
+
+- 회원 정보 유지를 위한 세션 처리 
+- 비밀번호는 민감한 정보이므로 해시된 데이터라도 비워둔채 세션에 저장한다.
+
+```java
+HttpSession session = request.getSession();
+member.setMemPw("");
+session.setAttribute("member", member);
+```
+
+#### src/main/java/controllers/member/LoginController.java
+
+```java
+
+... 생략 
+
+import models.member.LoginService;
+import static commons.Utils.*;
+
+@WebServlet("/member/login")
+public class LoginController extends HttpServlet {
+
+	... 생략 
 	
-	/**'
-	 * 회원 등록 
-	 * 
-	 * @param {MemberDto} member
-	 * @return {MemberDto}  추가 성공시 회원번호(memNo)가 포함된 객체 반환 
-	 * 					실패시 null 반환
-	 */
-	public MemberDto register(MemberDto member) {
+	@Override
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		try {
-			SqlSession sqlSession = Connection.getSqlSession();
-			int affectedRows = sqlSession.insert("MemberMapper.register", member);
-			if (affectedRows <= 0) {
-				throw new RuntimeException();
-			}
+			LoginService service = new LoginService();
+			service.login(req);
 			
-			sqlSession.commit();
-			sqlSession.close();
+			// 로그인 성공시 메인페이지로 이동 
+			String url = req.getContextPath();
+			go(resp, url, "parent");
 			
-			return member;
 		} catch (RuntimeException e) {
 			e.printStackTrace();
+			alertError(resp, e);
 		}
-		
-		return null;
-	}
-	
-	/**
-	 * 회원정보 조회 
-	 * @param {String} memId 아이디
-	 * @return {MembeDto}  조회 실패시 null 반환
-	 */
-	public MemberDto get(String memId) {
-		MemberDto member = null;
-		try {
-			SqlSession sqlSession = Connection.getSqlSession();
-			MemberDto param = new MemberDto();
-			param.setMemId(memId);
-			member = sqlSession.selectOne("MemberMapper.member", param);
-			
-		} catch (RuntimeException e) {
-			e.printStackTrace();
-		}
-		
-		return member;
-	}
-	
-	/**
-	 * 회원목록 조회 
-	 * 
-	 * @param {int} page 페이지번호, 기본값 1 
-	 * @param {int} limit 1페이지당 레코드 수, 기본값 30 
-	 * 
-	 * @return {List<MemberDto>}
-	 */
-	public List<MemberDto> gets(int page, int limit) {
-		page = (page == 0) ? page : 1;
-		limit = (limit == 0) ? limit : 30;
-		int offset = (page - 1) * limit;
-		MembersDto param = new MembersDto(offset, limit);
-		SqlSession sqlSession = Connection.getSqlSession();
-		List<MemberDto> members = sqlSession.selectList("MemberMapper.members", param);
-		
-		return members;
-	}
-	
-	public List<MemberDto> gets(int page) {
-		return gets(page, 30);
-	}
-	
-	public List<MemberDto> gets() {
-		return gets(1);
-	}
-	
-	/**
-	 * 중복 아이이디 체크 
-	 * 
-	 * @param {String} memId
-	 * @return {boolean}
-	 */
-	public boolean checkDuplicateId(String memId) {
-		SqlSession sqlSession = Connection.getSqlSession();
-		MemberDto param = new MemberDto();
-		param.setMemId(memId);
-		int count = sqlSession.selectOne("MemberMapper.memberCount", param);
-		System.out.println(count);
-		return count > 0;
-	}
-	
-	public static MemberDao getInstance() {
-		if (instance == null) {
-			instance = new MemberDao();
-		}
-		
-		return instance;
 	}
 }
 ```
 
 * * * 
+## 로그아웃
 
-## 회원 가입 기능 구현
+#### src/main/java/models/member/LogoutService.java
 
-#### src/main/java/controllers/JoinController.java : 회원가입
+- 로그아웃 Service
+
+```java
+package models.member;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+/**
+ * 로그아웃 처리
+ * 
+ * @author YONGGYO
+ *
+ */
+public class LogoutService {
+	
+	public void logout(HttpServletRequest request) {
+		HttpSession session = request.getSession();
+		session.invalidate();
+	}
+}
+```
+
+#### src/main/java/controllers/member/LogoutController.java
+
+- 로그아웃 처리 Controller
+
+```java
+package controllers.member;
+
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import models.member.LogoutService;
+
+@WebServlet("/member/logout")
+public class LogoutController extends HttpServlet {
+
+	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		LogoutService service = new LogoutService();
+		service.logout(req);
+		
+		// 로그아웃 완료 후 메인페이지로 이동
+		resp.sendRedirect(req.getContextPath());
+	}
+
+	@Override
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		doGet(req,resp);
+	}
+}
+```
+
+- 로그아웃 요청이 오면 LogoutService 에서 처리 
+
+```java 
+LogoutService service = new LogoutService();
+service.logout(req);
+```
+
+- 로그아웃은 POST 요청 형태로로 유입이 될 수 있으므로 doGet(req, resp); 를 추가하여 공통 소스를 하나의 메서드(doGet)에서 처리
 
 ```java
 @Override
 protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-	try {
-		MemberJoinService service = new MemberJoinService();
-		service.join(req);
-			
-		// 가입 성공한 경우 로그인 페이지로 이동 
-		go(resp, "../member/login", "parent");
-	} catch (RuntimeException e) {
-		alertError(resp, e);
-	}
+	doGet(req,resp);
 }
 ```
 
-- 가입 처리는 서비스 클래스(MemberJoinService)에서 데이터 검증과 DB처리 진행
-
-```
-MemberJoinService service = new MemberJoinService();
-service.join(req);
-```
-
-#### src/main/java/models/member/MemberJoinService.java
-
+- 로그아웃이 완료되면 메인페이지로 이동
 ```java
-package models.member;
-
-import java.util.*;
-import javax.servlet.http.HttpServletRequest;
-
-import org.mindrot.bcrypt.BCrypt;
-
-import models.member.validation.MemberValidationException;
-import models.member.validation.MemberValidator;
-
-/**
- * 회원 가입 처리 
- * 
- * @author YONGGYO
- */
-public class MemberJoinService implements MemberValidator {
-	
-	public void join(HttpServletRequest request) {
-		
-		ResourceBundle bundle = ResourceBundle.getBundle("bundle.common");
-		
-		/** 필수 항목 유효성 검사 */
-		HashMap<String, String> checkFields = new HashMap<>();
-		checkFields.put("memId", bundle.getString("MEMBER_REQUIRED_MEMID"));
-		checkFields.put("memPw", bundle.getString("MEMBER_REQUIRED_MEMPW"));
-		checkFields.put("memPwRe", bundle.getString("MEMBER_REQUIRED_MEMPWRE"));
-		checkFields.put("memNm", bundle.getString("MEMBER_REQUIRED_MEMNM"));
-		checkFields.put("isAgree", bundle.getString("MEMBER_REQUIRED_AGREE"));
-		requiredCheck(request, checkFields);
-		
-		String memId = request.getParameter("memId");
-		String memNm = request.getParameter("memNm");
-		String memPw = request.getParameter("memPw");
-		String memPwRe = request.getParameter("memPwRe");
-		String mobile = request.getParameter("mobile");
-		String email = request.getParameter("email");
-		
-		/** 아이디 자리수 체크 */
-		if (memId.length() < 6) {
-			throw new MemberValidationException(bundle.getString("MEMBER_MEMID_LENGTH"));
-		}
-		
-		/** 이미 가입된 회원인지 체크 */
-		checkDupMember(memId);
-			
-		/** 비밀번호 복잡성 체크 */
-		checkPassword(memPw);
-		
-		if (!memPw.equals(memPwRe)) {
-			throw new MemberValidationException(bundle.getString("MEMBER_MEMPW_NOT_SAME"));
-		}
-		
-		
-		/** 휴대전화번호 체크 */
-		mobile = mobile.replaceAll("\\D", "");
-		checkMobileNum(mobile);
-		
-		/** 비밀번호 Bcrypt 방식으로 해시 처리 */
-		String hash = BCrypt.hashpw(memPw, BCrypt.gensalt(10));
-		
-		/** 회원 가입 처리 S */
-		MemberDto member = new MemberDto();
-		member.setMemId(memId);
-		member.setMemNm(memNm);
-		member.setMemPw(hash);
-		member.setEmail(email);
-		member.setMobile(mobile);
-		System.out.println(member);
-		MemberDao memberDao = MemberDao.getInstance();
-		MemberDto newMember = memberDao.register(member);
-		if (newMember == null) {
-			throw new MemberException(bundle.getString("MEMBER_JOIN_FAILED"));
-		}
-	
-		/** 회원 가입 처리 E */
-	}
-}
+resp.sendRedirect(req.getContextPath());
 ```
 
+#### WEB-INF/classes/bundle/common_ko.properties
 
-### PC
+```
+... 생략 
 
-![image1](https://github.com/yonggyo1125/curriculum300H/blob/main/5.JSP2%20%26%20JSP%20%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8(60%EC%8B%9C%EA%B0%84)/6%EC%9D%BC%EC%B0%A8(3h)%20-%20%EB%8D%B0%EC%9D%B4%ED%84%B0%EB%B2%A0%EC%9D%B4%EC%8A%A4/images/project/image1.png)
+#회원
+MEMBER_JOIN=회원가입
+MEMBER_LOGIN=로그인
+MEMBER_LOGOUT=로그아웃
 
+... 생략
 
-### Mobile 
+# 마이페이지
+MYPAGE=마이페이지
+```
 
-![image2](https://github.com/yonggyo1125/curriculum300H/blob/main/5.JSP2%20%26%20JSP%20%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8(60%EC%8B%9C%EA%B0%84)/6%EC%9D%BC%EC%B0%A8(3h)%20-%20%EB%8D%B0%EC%9D%B4%ED%84%B0%EB%B2%A0%EC%9D%B4%EC%8A%A4/images/project/image2.png)
+#### WEB-INF/classes/bundle/common_en.properties
 
-* * * 
+```
+
+... 생략 
+
+#회원
+MEMBER_JOIN=JOIN
+MEMBER_LOGIN=LOG IN
+MEMBER_LOGOUT=LOG OUT
+
+... 생략 
+
+# 마이페이지
+MYPAGE=MY PAGE
+```
+
+#### WEB-INF/tags/layouts/main.tag
+
+```jsp
+
+... 생략
+
+<jsp:attribute name="header">
+	<section class='top_menu'>
+		<div class="layout_width">
+			<c:if test="${ empty member }">
+				<a href="<c:url value="/member/join" />"><fmt:message key="MEMBER_JOIN" /></a>
+				<a href="<c:url value="/member/login" />"><fmt:message key="MEMBER_LOGIN" /></a>
+			</c:if>
+			<c:if test="${ ! empty member }">
+				<a href="<c:url value="/mypage" />"><fmt:message key="MYPAGE" /></a>
+				<a href="<c:url value="/member/logout" />"><fmt:message key="MEMBER_LOGOUT" /></a>
+			</c:if>
+		</div>
+	</section>
+	
+	... 생략
+	
+</jsp:attribute>
+
+... 생략
+
+```

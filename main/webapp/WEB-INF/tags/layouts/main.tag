@@ -9,8 +9,14 @@
 	<jsp:attribute name="header">
 		<section class='top_menu'>
 			<div class="layout_width">
-				<a href="<c:url value="/member/join" />"><fmt:message key="MEMBER_JOIN" /></a>
-				<a href="<c:url value="/member/login" />"><fmt:message key="MEMBER_LOGIN" /></a>
+				<c:if test="${ empty member }">
+					<a href="<c:url value="/member/join" />"><fmt:message key="MEMBER_JOIN" /></a>
+					<a href="<c:url value="/member/login" />"><fmt:message key="MEMBER_LOGIN" /></a>
+				</c:if>
+				<c:if test="${ ! empty member }">
+					<a href="<c:url value="/mypage" />"><fmt:message key="MYPAGE" /></a>
+					<a href="<c:url value="/member/logout" />"><fmt:message key="MEMBER_LOGOUT" /></a>
+				</c:if>
 			</div>
 		</section>
 		<section class="logo">
