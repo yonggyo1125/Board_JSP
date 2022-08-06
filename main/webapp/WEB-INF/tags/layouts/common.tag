@@ -7,6 +7,7 @@
 <%@ attribute name="add_css" fragment="true" %>
 <%@ attribute name="add_js" fragment="true" %>
 <%@ attribute name="title" type="java.lang.String" %>
+<%@ attribute name="bodyClass" type="java.lang.String" %>
 <fmt:setBundle basename="bundle.common" />
 <!DOCTYPE html> 
 <html>
@@ -35,7 +36,7 @@
 			<title>${title}</title>
 		</c:if>
 	</head>
-	<body>
+	<body class="body-${empty bodyClass ?"main":bodyClass}">
 		<header>
 			<jsp:invoke fragment="header" />
 		</header>

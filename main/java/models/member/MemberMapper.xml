@@ -14,7 +14,12 @@
 	 
 	 <!-- 회원 조회 -->
 	 <select id="member" parameterType="models.member.MemberDto" resultMap="memberMap">
-	 	SELECT * FROM WHERE memId=#{memId};
+	 	SELECT * FROM member WHERE memId=#{memId};
+	 </select>
+	 
+	 <!--  회원 조회 count -->
+	 <select id="memberCount" parameterType="models.member.MemberDto" resultType="int">
+	 	SELECT COUNT(*) FROM member WHERE memId=#{memId};
 	 </select>
 	 
 	 <!-- 회원목록 조회 -->

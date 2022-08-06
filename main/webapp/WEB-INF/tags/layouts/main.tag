@@ -3,8 +3,9 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="layout" tagdir="/WEB-INF/tags/layouts" %>
 <%@ attribute name="title" type="java.lang.String" %>
+<%@ attribute name="bodyClass" type="java.lang.String" %>
 <fmt:setBundle basename="bundle.common" />
-<layout:common title="${title}">
+<layout:common title="${title}" bodyClass="${bodyClass}">
 	<jsp:attribute name="header">
 		<section class='top_menu'>
 			<div class="layout_width">

@@ -24,8 +24,8 @@ public interface Validator {
 		for (Map.Entry<String, String> entry : checkFields.entrySet()) {
 			String key = entry.getKey();
 			String msg = entry.getValue();
-			String field = request.getParameter(key);
-			if (field == null || field.isBlank()) {
+			String value = request.getParameter(key);
+			if (value == null || value.isBlank()) {
 				throw new ValidationException(msg);
 			}
 		}

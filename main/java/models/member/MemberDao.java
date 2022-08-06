@@ -85,6 +85,21 @@ public class MemberDao {
 		return gets(1);
 	}
 	
+	/**
+	 * 중복 아이이디 체크 
+	 * 
+	 * @param {String} memId
+	 * @return {boolean}
+	 */
+	public boolean checkDuplicateId(String memId) {
+		SqlSession sqlSession = Connection.getSqlSession();
+		MemberDto param = new MemberDto();
+		param.setMemId(memId);
+		int count = sqlSession.selectOne("MemberMapper.memberCount", param);
+		System.out.println(count);
+		return count > 0;
+	}
+	
 	public static MemberDao getInstance() {
 		if (instance == null) {
 			instance = new MemberDao();

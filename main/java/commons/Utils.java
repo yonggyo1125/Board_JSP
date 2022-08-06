@@ -90,4 +90,29 @@ public class Utils {
 	public static void go(HttpServletResponse response, String url) {
 		go(response, url, "_self");
 	}
+	
+	/**
+	 * history.back 처리 
+	 *  
+	 * @param {HttpServletResponse} response
+	 * @param {String} target  : _self, parent, _blank(새창), _top   
+	 */
+	public static void back(HttpServletResponse response, String target) {
+		try {
+			if (target == null) {
+				target="_self";
+			}
+			response.setContentType("text/html; charset=utf-8");
+			PrintWriter out = response.getWriter();
+			out.println("<script>");
+			out.println(target + ".history.back();");
+			out.println("</script>");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void back(HttpServletResponse response) {
+		back(response, "_self");
+	}
 }
