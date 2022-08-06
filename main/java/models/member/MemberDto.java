@@ -6,12 +6,28 @@ public class MemberDto {
 	
 	private int memNo; // 회원번호 
 	private String memId; // 아이디
+	private String memPw; // 비밀번호
 	private String memNm; // 회원명 
 	private String email; // 이메일 
-	private String memPw; // 비밀번호
+	private String mobile; // 휴대전화
 	private LocalDateTime regDt; // 가입일
 	private LocalDateTime modDt; // 정보 수정일
 	
+	public MemberDto() {}
+	
+	public MemberDto(int memNo, String memId, String memPw, String memNm, String email, String mobile,
+			LocalDateTime regDt, LocalDateTime modDt) {
+		
+		this.memNo = memNo;
+		this.memId = memId;
+		this.memPw = memPw;
+		this.memNm = memNm;
+		this.email = email;
+		this.mobile = mobile;
+		this.regDt = regDt;
+		this.modDt = modDt;
+	}
+
 	public int getMemNo() {
 		return memNo;
 	}
@@ -26,6 +42,14 @@ public class MemberDto {
 	
 	public void setMemId(String memId) {
 		this.memId = memId;
+	}
+	
+	public String getMemPw() {
+		return memPw;
+	}
+	
+	public void setMemPw(String memPw) {
+		this.memPw = memPw;
 	}
 	
 	public String getMemNm() {
@@ -44,12 +68,12 @@ public class MemberDto {
 		this.email = email;
 	}
 	
-	public String getMemPw() {
-		return memPw;
+	public String getMobile() {
+		return mobile;
 	}
 	
-	public void setMemPw(String memPw) {
-		this.memPw = memPw;
+	public void setMobile(String mobile) {
+		this.mobile = mobile;
 	}
 	
 	public LocalDateTime getRegDt() {
@@ -70,7 +94,7 @@ public class MemberDto {
 	
 	@Override
 	public String toString() {
-		return "MemberDto [memNo=" + memNo + ", memId=" + memId + ", memNm=" + memNm + ", email=" + email + ", memPw="
-				+ memPw + ", regDt=" + regDt + ", modDt=" + modDt + "]";
+		return "MemberDto [memNo=" + memNo + ", memId=" + memId + ", memPw=" + memPw + ", memNm=" + memNm + ", email="
+				+ email + ", mobile=" + mobile + ", regDt=" + regDt + ", modDt=" + modDt + "]";
 	}
 }

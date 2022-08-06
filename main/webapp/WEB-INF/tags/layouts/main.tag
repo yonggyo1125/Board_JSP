@@ -2,13 +2,14 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="layout" tagdir="/WEB-INF/tags/layouts" %>
+<%@ attribute name="title" type="java.lang.String" %>
 <fmt:setBundle basename="bundle.common" />
-<layout:common>
+<layout:common title="${title}">
 	<jsp:attribute name="header">
 		<section class='top_menu'>
 			<div class="layout_width">
-				<a href="<c:url value="/join" />"><fmt:message key="MEMBER_JOIN" /></a>
-				<a href="<c:url value="/login" />"><fmt:message key="MEMBER_LOGIN" /></a>
+				<a href="<c:url value="/member/join" />"><fmt:message key="MEMBER_JOIN" /></a>
+				<a href="<c:url value="/member/login" />"><fmt:message key="MEMBER_LOGIN" /></a>
 			</div>
 		</section>
 		<section class="logo">
@@ -16,7 +17,6 @@
 				<fmt:message key="SITE_TITLE" />
 			</a>
 		</section>
-		
 	</jsp:attribute>
 	<jsp:attribute name="main_menu">
 	<nav>
