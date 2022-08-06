@@ -30,9 +30,10 @@ public class LoginService implements MemberValidator {
 		requiredCheck(request, checkFields);
 		/** 필수 입력 항목 체크 E */
 		
-		/** 아이디 및 비밀번호 체크 S */
 		String memId = request.getParameter("memId");
 		String memPw = request.getParameter("memPw");
+		
+		/** 아이디 및 비밀번호 체크 S */
 		
 		MemberDao dao = MemberDao.getInstance();
 		

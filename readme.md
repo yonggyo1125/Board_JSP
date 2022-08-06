@@ -436,3 +436,131 @@ MYPAGE=MY PAGE
 ... 생략
 
 ```
+
+
+#### 로그인/로그아웃 구현 화면
+
+![image2](https://raw.githubusercontent.com/yonggyo1125/curriculum300H/main/5.JSP2%20%26%20JSP%20%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8(60%EC%8B%9C%EA%B0%84)/8%EC%9D%BC%EC%B0%A8(3h)%20-%20%EC%BF%A0%ED%82%A4%EC%99%80%20%EC%84%B8%EC%85%98/images/project/image2.png)
+
+![image1](https://raw.githubusercontent.com/yonggyo1125/curriculum300H/main/5.JSP2%20%26%20JSP%20%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8(60%EC%8B%9C%EA%B0%84)/8%EC%9D%BC%EC%B0%A8(3h)%20-%20%EC%BF%A0%ED%82%A4%EC%99%80%20%EC%84%B8%EC%85%98/images/project/image1.png)
+
+
+* * * 
+## 아이디 저장 기능 구현
+
+#### WEB-INF/classes/bundle/common_ko.properties
+
+```
+
+... 생략
+
+MEMBER_PASSWORD_INCORRECT=비밀번호가 일치하지 않습니다.
+MEMBER_SAVE_MEMID=아이디 저장
+
+... 생략 
+
+```
+
+#### WEB-INF/classes/bundle/common_en.properties
+
+```
+... 생략
+
+MEMBER_PASSWORD_INCORRECT=Your password is not correct.
+MEMBER_SAVE_MEMID=Save ID
+
+... 생략
+
+```
+
+#### src/main/webapp/member/login.jsp
+
+```jsp
+<dl>
+	<dt class='mobile_hidden'><fmt:message key="MEMBER_MEMPW" /></dt>
+	<dd class="mobile_fullwidth">
+		<input type="text" name="memId" value="${empty cookie.savedMemId ? '' : cookie.savedMemId.value }" placeholder="<fmt:message key="MEMBER_MEMID" />" />
+	</dd>
+</dl>
+<div class="ar mt10">
+	<input type="checkbox" name="saveMemId" id="saveMemId"${empty cookie.savedMemId ? '' : ' checked' }>
+	<label for="saveMemId"><fmt:message key="MEMBER_SAVE_MEMID" /></label>
+</div>
+
+... 생략
+		
+```
+
+
+#### src/main/java/controllers/member/LoginController.java
+
+```java
+
+... 생략 
+
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.Cookie;
+
+... 생략
+
+@WebServlet("/member/login")
+public class LoginController extends HttpServlet {
+	
+	... 생략
+	
+	@Override
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		try {
+			LoginService service = new LoginService();
+			service.login(req);
+			
+			/** 아이디 저장 처리 S */
+			String memId = req.getParameter("memId");
+			String saveMemId = req.getParameter("saveMemId");
+			if (saveMemId == null) { 
+				// 아이디 저장이 아니면 쿠키 삭제
+				for (Cookie cookie : req.getCookies()) {
+					if (cookie.getName().equals("savedMemId")) {
+						cookie.setMaxAge(0);
+					}
+				}
+			} else { 
+				// 아이디 저장이라면 쿠기 추가 
+				resp.addCookie(new Cookie("savedMemId", memId));
+			}
+			/** 아이디 저장 처리 E */
+			
+			// 로그인 성공시 메인페이지로 이동 
+			String url = req.getContextPath();
+			go(resp, url, "parent");
+			
+		} catch (RuntimeException e) {
+			e.printStackTrace();
+			alertError(resp, e);
+		}
+	}	
+}
+```
+
+- 아이디 저장 체크를 해제한 경우 쿠키를 삭제합니다.
+- 쿠키 삭제는 쿠키 만료시간을 0으로 지정하면 브라우저에서 자동으로 삭제합니다. <code>cookie.setMaxAge(0);</code>
+- 아이디 저장을 체크한 경우는 쿠키를 저장합니다. 
+
+```java
+if (saveMemId == null) { 
+	// 아이디 저장이 아니면 쿠키 삭제
+	for (Cookie cookie : req.getCookies()) {
+		if (cookie.getName().equals("savedMemId")) {
+			cookie.setMaxAge(0);
+		}
+	}
+} else { 
+	// 아이디 저장이라면 쿠기 추가 
+	resp.addCookie(new Cookie("savedMemId", memId));
+}
+```
+
+
+### 구현 화면
+
+![image3](https://raw.githubusercontent.com/yonggyo1125/curriculum300H/main/5.JSP2%20%26%20JSP%20%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8(60%EC%8B%9C%EA%B0%84)/8%EC%9D%BC%EC%B0%A8(3h)%20-%20%EC%BF%A0%ED%82%A4%EC%99%80%20%EC%84%B8%EC%85%98/images/project/image3.png)

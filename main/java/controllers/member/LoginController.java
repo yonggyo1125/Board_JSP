@@ -5,6 +5,7 @@ import java.io.IOException;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,6 +28,22 @@ public class LoginController extends HttpServlet {
 		try {
 			LoginService service = new LoginService();
 			service.login(req);
+			
+			/** 아이디 저장 처리 S */
+			String memId = req.getParameter("memId");
+			String saveMemId = req.getParameter("saveMemId");
+			if (saveMemId == null) { 
+				// 아이디 저장이 아니면 쿠키 삭제
+				for (Cookie cookie : req.getCookies()) {
+					if (cookie.getName().equals("savedMemId")) {
+						cookie.setMaxAge(0);
+					}
+				}
+			} else { 
+				// 아이디 저장이라면 쿠기 추가 
+				resp.addCookie(new Cookie("savedMemId", memId));
+			}
+			/** 아이디 저장 처리 E */
 			
 			// 로그인 성공시 메인페이지로 이동 
 			String url = req.getContextPath();

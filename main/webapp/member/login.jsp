@@ -9,7 +9,7 @@
 		<dl>
 			<dt class='mobile_hidden'><fmt:message key="MEMBER_MEMID" /></dt>
 			<dd class="mobile_fullwidth">
-				<input type="text" name="memId" placeholder="<fmt:message key="MEMBER_MEMID" />" />
+				<input type="text" name="memId" value="${empty cookie.savedMemId ? '' : cookie.savedMemId.value }" placeholder="<fmt:message key="MEMBER_MEMID" />" />
 			</dd>
 		</dl>
 		<dl>
@@ -18,6 +18,10 @@
 				<input type="password" name="memPw" placeholder="<fmt:message key="MEMBER_MEMPW" />" />
 			</dd>
 		</dl>
+		<div class="ar mt10">
+			<input type="checkbox" name="saveMemId" id="saveMemId"${empty cookie.savedMemId ? '' : ' checked' }>
+			<label for="saveMemId"><fmt:message key="MEMBER_SAVE_MEMID" /></label>
+		</div>
 		<div class="btn_grp mt20">
 			<button type="submit" class="black"><fmt:message key="MEMBER_LOGIN" /></button>
 		</div>
