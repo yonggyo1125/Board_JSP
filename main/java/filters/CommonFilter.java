@@ -10,6 +10,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import filters.wrappers.AccessRequestWrapper;
 import filters.wrappers.CommonRequestWrapper;
 import filters.wrappers.CommonResponseWrapper;
 

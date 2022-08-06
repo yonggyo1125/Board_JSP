@@ -564,3 +564,108 @@ if (saveMemId == null) {
 ### 구현 화면
 
 ![image3](https://raw.githubusercontent.com/yonggyo1125/curriculum300H/main/5.JSP2%20%26%20JSP%20%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8(60%EC%8B%9C%EA%B0%84)/8%EC%9D%BC%EC%B0%A8(3h)%20-%20%EC%BF%A0%ED%82%A4%EC%99%80%20%EC%84%B8%EC%85%98/images/project/image3.png)
+
+* * * 
+
+## 회원/비회원 전용페이지 접속 제한 처리
+
+- 회원/비회원 또는 추후 추가될 관리자 및 일반사용자의 접속 권한을 체크하는 필터를 추가합니다.
+
+#### src/main/java/filters/AccessFilter.java
+
+```java
+package filters;
+
+import java.io.IOException;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import filters.wrappers.AccessRequestWrapper;
+
+/**
+ * 접속 통제 Filter
+ * 
+ * @author YONGGYO
+ */
+public class AccessFilter implements Filter {
+
+	@Override
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+			throws IOException, ServletException {
+		
+		chain.doFilter(new AccessRequestWrapper((HttpServletRequest)request), response);
+	}
+}
+```
+
+#### src/main/java/filters/wrappers/AccessRequestWrapper.java
+
+```java
+
+```
+
+
+#### WEB-INF/web.xml
+
+- 접속 권한을 체크하는 필터(access-filter)를 추가하고 필터의 적용범위는 요청을 하는 경우로 한정한다.
+- 접속 권한의 경우 응답 코드는 401로 하나 JSP 기본 출력 오류 형식 보다는 별도 페이지로 출력될 수 있도록 처리한다.
+- 마찬가지로 내부에서 throw 되는 RuntimeException 예외 객체 및 별도 응답 코드도 별도 페이지에서 출력할수 있도록 한다.
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="4.0" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee                       http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd">
+	
+	... 생략 
+	
+	<filter>
+		<filter-name>access-filter</filter-name>
+		<filter-class>filters.AccessFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>access-filter</filter-name>
+		<url-pattern>/*</url-pattern>
+		<dispatcher>REQUEST</dispatcher>
+	</filter-mapping>
+
+	<error-page>
+		<exception-type>java.lang.RuntimeException</exception-type>
+		<location>/error/500.jsp</location>
+	</error-page>
+	<error-page>
+		<error-code>401</error-code>
+		<location>/error/401.jsp</location>
+	</error-page>
+	<error-page>
+		<error-code>404</error-code>
+		<location>/error/404.jsp</location>
+	</error-page>
+	<error-page>
+		<error-code>500</error-code>
+		<location>/error/500.jsp</location>
+	</error-page>
+</web-app>
+```
+
+#### WEB-INF/tags/layouts/error.tag
+
+-  에레페이지 레이아웃 템플릿 
+
+```jsp
+<%@ tag description="메인 레이아웃" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="layout" tagdir="/WEB-INF/tags/layouts" %>
+<%@ attribute name="title" type="java.lang.String" %>
+<%@ attribute name="bodyClass" type="java.lang.String" %>
+<fmt:setBundle basename="bundle.common" />
+<layout:main title="${title}" bodyClass="error">
+	<jsp:body>
+		<jsp:doBody />
+	</jsp:body>
+</layout:main>
+```
+
