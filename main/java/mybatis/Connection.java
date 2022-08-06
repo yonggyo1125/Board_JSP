@@ -1,5 +1,6 @@
 package mybatis;
 
+import java.util.ResourceBundle;
 import java.io.IOException;
 import java.io.Reader;
 
@@ -15,8 +16,22 @@ public class Connection {
 	static {
 		// 접속정보를 명시하고 있는 XML의 경로 읽기
 		try {
+			ResourceBundle config = ResourceBundle.getBundle("application");
+			
+			String environment = config.getString("environment");
+			if (environment == null || environment.isBlank()) {
+				environment = "development";
+			}
+			
 			// mybatis-config.xml 파일의 경로 */
-			Reader reader = Resources.getResourceAsReader("mybatis/config/mybatis-config.xml");
+			String configPath = null;
+			if (environment.equals("production")) { 
+				configPath = "mybatis/config/mybatis-config.xml";
+			} else { 
+				configPath = "mybatis/config/mybatis-dev-config.xml";
+			}
+
+			Reader reader = Resources.getResourceAsReader(configPath);
 			
 			if (sqlSessionFactory == null) {
 				sqlSessionFactory = new SqlSessionFactoryBuilder().build(reader);
