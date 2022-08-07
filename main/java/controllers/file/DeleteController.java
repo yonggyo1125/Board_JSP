@@ -15,7 +15,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
 import models.file.FileDeleteService;
-import static commons.Utils.*;
 
 @WebServlet("/file/delete")
 public class DeleteController extends HttpServlet {

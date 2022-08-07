@@ -10,7 +10,9 @@ ul, ol, dl, dd, dt { margin: 0; padding: 0; }
 .layout_width { max-width: 1100px; margin: 0 auto;  padding: 0 10px; }
 .dn { display: none !important; }
 
+/** 제목 */
 .mtitle { text-align: center; font-size: 2rem; line-height: 1; margin-bottom: 20px; }
+.stitle { font-size:1.3rem; }
 
 /** 양식 공통 */
 .form_box { border: 3px solid #d5d5d5; max-width: 600px; margin: 0 auto; padding:  20px; border-radius: 5px; }
@@ -68,6 +70,15 @@ main { min-height: 600px; }
 nav { background-color: #212121; }
 nav > div { display: flex; }
 nav > div a { padding: 15px 20px;  color: #ffffff;  font-size: 1.3rem; }
+
+/** 파일업로드 file/upload.jsp */
+.body-file-upload  { padding: 60px 10px 10px; }
+.body-file-upload .mtitle { font-size: 1.5rem; border-bottom: 1px solid #212121; height: 40px; line-height: 39px; position: fixed; top: 0; left: 0; width: 100%; background-color: #d5d5d5; font-weight: bold; z-index: 10; }
+.body-file-upload #file { display: none; }
+.body-file-upload  #add_file { border: 1px dashed #212121; padding: 40px 100px; font-size: 3rem; margin: 10px auto; display: block; text-align:center; color: #212121; cursor: pointer; }
+.body-file-upload #uploaded_list li { border: 1px solid #d5d5d5; display: flex; justify-content: space-between; padding: 10px; align-items: center; margin: 3px 0; }
+.body-file-upload #uploaded_list li .delete { cursor: pointer; }
+.body-file-upload #uploaded_list li a:hover { text-decoration: underline; }
 
 @media all and (max-width: 720px) {
 	.mobile_hidden { display: none !important; }

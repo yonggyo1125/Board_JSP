@@ -894,7 +894,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
 import models.file.FileDeleteService;
-import static commons.Utils.*;
 
 @WebServlet("/file/delete")
 public class DeleteController extends HttpServlet {
@@ -1020,6 +1019,8 @@ const fileUpload = {
 						
 						... 생략 
 						
+						const dom = domParser.parseFromString(html, "text/html");
+						const liEl = dom.getElementsByTagName("li")[0];
 						listEl.appendChild(liEl);
 						
 						/* 삭제 이벤트 처리 S */
