@@ -8,6 +8,8 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import filters.wrappers.AccessRequestWrapper;
 
 /**
@@ -21,6 +23,6 @@ public class AccessFilter implements Filter {
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
 		
-		chain.doFilter(new AccessRequestWrapper((HttpServletRequest)request), response);
+		chain.doFilter(new AccessRequestWrapper((HttpServletRequest)request, (HttpServletResponse)response), response);
 	}
 }

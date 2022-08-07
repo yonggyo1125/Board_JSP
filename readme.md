@@ -569,7 +569,48 @@ if (saveMemId == null) {
 
 ## 회원/비회원 전용페이지 접속 제한 처리
 
-- 회원/비회원 또는 추후 추가될 관리자 및 일반사용자의 접속 권한을 체크하는 필터를 추가합니다.
+#### WEB-INF/classes/applilcation.properties
+
+- 회원전용, 비회원 전용 통제를 쉽게 하기 위해 설정파일에 다음과 같이 추가한다.
+
+```
+... 생략 
+
+# 회원 전용 URL 
+member_urls=/mypage,/member/logout
+
+# 비회원 전용 URL 
+guest_urls=/member/login,/member/join
+
+```
+
+#### /WEB-INF/classes/bundle/common_ko.properties 
+
+```
+... 생략
+
+# 마이페이지
+MYPAGE=마이페이지
+
+# 페이지 통제
+MEMBER_ONLY=회원전용 페이지 입니다.
+GUEST_ONLY=비회원 전용 페이지 입니다.
+```
+
+#### /WEB-INF/classes/bundle/common_en.properties 
+
+```
+... 생략
+
+# 마이페이지
+MYPAGE=MY PAGE
+
+# 페이지 통제
+MEMBER_ONLY=Member Only
+GUEST_ONLY=Guest Only
+```
+
+- 회원/비회원 또는 추후 추가될 관리자 및 일반사용자의 접속 권한을 체크하는 필터 및 래퍼를 구현 합니다.
 
 #### src/main/java/filters/AccessFilter.java
 
@@ -584,6 +625,8 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import filters.wrappers.AccessRequestWrapper;
 
 /**
@@ -597,7 +640,7 @@ public class AccessFilter implements Filter {
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
 		
-		chain.doFilter(new AccessRequestWrapper((HttpServletRequest)request), response);
+		chain.doFilter(new AccessRequestWrapper((HttpServletRequest)request, (HttpServletResponse)response), response);
 	}
 }
 ```
@@ -605,7 +648,70 @@ public class AccessFilter implements Filter {
 #### src/main/java/filters/wrappers/AccessRequestWrapper.java
 
 ```java
+package filters.wrappers;
 
+import java.io.IOException;
+import java.util.ResourceBundle;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import models.member.MemberDto;
+
+
+/**
+ * 접속 제한 처리 
+ * 
+ * @author YONGGYO
+ *
+ */
+public class AccessRequestWrapper extends HttpServletRequestWrapper {
+	public AccessRequestWrapper(HttpServletRequest request) {
+		super(request);
+	}
+	
+	public AccessRequestWrapper(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+		super(request);
+		
+		String URI = request.getRequestURI();
+		ResourceBundle bundle = ResourceBundle.getBundle("application");
+		ResourceBundle common = ResourceBundle.getBundle("bundle.common");
+		
+		HttpSession session = request.getSession();
+		Object member = session.getAttribute("member");
+		
+		/** 회원 전용 URL 체크 S */
+		String memberUrls = bundle.getString("member_urls");
+		if (memberUrls != null && member == null) {
+			for (String url : memberUrls.split(",")) {
+				if (URI.indexOf(url) != -1) {
+					request.setAttribute("errorMessage", common.getString("MEMBER_ONLY"));
+					request.setAttribute("statusCode", 401);
+					response.sendError(401);
+					break;
+				}
+			}
+		}
+		/** 회원 전용 URL 체크 E */
+		
+		/** 비회원 전용 URL 체크 S */
+		String guestUrls = bundle.getString("guest_urls");
+		if (guestUrls != null && member != null) {
+			for (String url : guestUrls.split(",")) {
+				if (URI.indexOf(url) != -1) {
+					request.setAttribute("errorMessage", common.getString("GUEST_ONLY"));
+					request.setAttribute("statusCode", 401);
+					response.sendError(401);
+					break;
+				}
+			}
+		}
+		/** 비회원 전용 URL 체크 E */
+	}	
+}
 ```
 
 
@@ -668,4 +774,134 @@ public class AccessFilter implements Filter {
 	</jsp:body>
 </layout:main>
 ```
+#### src/main/java/filters/wrappers/CommonRequestWrapper.java 
 
+- 에러 페이지 및 기타 필요에 따라 요청 URL을 쉽게 활용하도록 다음과 같이 세션에 추가한다.
+
+```java
+package filters.wrappers;
+
+import java.io.UnsupportedEncodingException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
+import javax.servlet.http.HttpSession;
+
+/**
+ * 공통 Request Filter Wrapper
+ * 
+ * 
+ * @author YONGGYO
+ *
+ */
+public class CommonRequestWrapper extends HttpServletRequestWrapper {
+
+	public CommonRequestWrapper(HttpServletRequest request) throws UnsupportedEncodingException {
+		super(request);
+		
+		/** 
+		 * 요청 메서드 POST일때   
+		 * 1. charset을 UTF-8로 고정
+		 * 2. 요청 URL 세션에 저장  
+		 */
+		String method = request.getMethod().toUpperCase();
+		if (method.equals("POST")) {
+			request.setCharacterEncoding("UTF-8");
+		}
+		
+		HttpSession session = request.getSession();
+		String requestURL = request.getRequestURL().toString();
+		session.setAttribute("requestURL", requestURL);
+	}
+}
+```
+
+#### webapp/error/401.jsp
+
+```jsp
+<%@ page contentType="text/html; charset=utf-8"  isErrorPage="true" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="layout" tagdir="/WEB-INF/tags/layouts" %>
+<c:set var="status" value="<%=response.getStatus()%>" />
+<c:set var="method" value="<%=request.getMethod()%>" />
+<% if (exception != null) exception.getStackTrace(); %>
+<layout:error title="401 NOT AUTHORIZED">
+	<div class="form_box mt20">
+		<h1>${ empty statusCode ? status : statusCode }</h1> 
+		<h2>${method} ${sessionScope.requestURL}</h2>
+		<c:if test="${!empty exception }">
+			<h3>${exception.message}</h3>
+		</c:if>
+		<c:if test="${ !empty errorMessage }">
+			<h3>${errorMessage}</h3>
+		</c:if>
+		<div class='btn_grp mt50' >
+			<a href="<c:url value="/" />">확인</a>
+		</div>
+	</div> <!--//  form_box -->
+</layout:error>
+```
+
+#### webapp/error/404.jsp
+
+```jsp
+<%@ page contentType="text/html; charset=utf-8"  isErrorPage="true" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="layout" tagdir="/WEB-INF/tags/layouts" %>
+<c:set var="status" value="<%=response.getStatus()%>" />
+<c:set var="method" value="<%=request.getMethod()%>" />
+<% if (exception != null) exception.getStackTrace(); %>
+<layout:error title="404 PAGE NOT FOUND">
+	<div class="form_box mt20">
+		<h1>${ empty statusCode ? status : statusCode }</h1> 
+		<h2>${method} ${sessionScope.requestURL}</h2>
+		<c:if test="${!empty exception }">
+			<h3>${exception.message}</h3>
+		</c:if>
+		<c:if test="${ !empty errorMessage }">
+			<h3>${errorMessage}</h3>
+		</c:if>
+		<div class='btn_grp mt50' >
+			<a href="<c:url value="/" />">확인</a>
+		</div>
+	</div> <!--//  form_box -->
+</layout:error>
+```
+
+
+#### webapp/error/500.jsp
+
+```jsp
+<%@ page contentType="text/html; charset=utf-8"  isErrorPage="true" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="layout" tagdir="/WEB-INF/tags/layouts" %>
+<c:set var="status" value="<%=response.getStatus()%>" />
+<c:set var="method" value="<%=request.getMethod()%>" />
+<% if (exception != null) exception.getStackTrace(); %>
+<layout:error title="500 INTERNAL SERVER ERROR">
+	<div class="form_box mt20">
+		<h1>${ empty statusCode ? status : statusCode }</h1> 
+		<h2>${method} ${sessionScope.requestURL}</h2>
+		<c:if test="${!empty exception }">
+			<h3>${exception.message}</h3>
+		</c:if>
+		<c:if test="${ !empty errorMessage }">
+			<h3>${errorMessage}</h3>
+		</c:if>
+		<div class='btn_grp mt50' >
+			<a href="<c:url value="/" />">확인</a>
+		</div>
+	</div> <!--//  form_box -->
+</layout:error>
+```
+
+### 구현 화면
+
+- 미로그인 상태에서 회원전용 페이지 접속시 
+
+![image4](https://raw.githubusercontent.com/yonggyo1125/curriculum300H/main/5.JSP2%20%26%20JSP%20%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8(60%EC%8B%9C%EA%B0%84)/8%EC%9D%BC%EC%B0%A8(3h)%20-%20%EC%BF%A0%ED%82%A4%EC%99%80%20%EC%84%B8%EC%85%98/images/project/image4.png)
+
+
+- 로그인 상태에서 비회원 전용 페이지 접속시
+
+![image5](https://raw.githubusercontent.com/yonggyo1125/curriculum300H/main/5.JSP2%20%26%20JSP%20%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8(60%EC%8B%9C%EA%B0%84)/8%EC%9D%BC%EC%B0%A8(3h)%20-%20%EC%BF%A0%ED%82%A4%EC%99%80%20%EC%84%B8%EC%85%98/images/project/image5.png)

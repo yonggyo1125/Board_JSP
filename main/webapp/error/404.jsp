@@ -3,7 +3,19 @@
 <%@ taglib prefix="layout" tagdir="/WEB-INF/tags/layouts" %>
 <c:set var="status" value="<%=response.getStatus()%>" />
 <c:set var="method" value="<%=request.getMethod()%>" />
-<c:set var="URI" value="<%=request.getRequestURI()%>" />
+<% if (exception != null) exception.getStackTrace(); %>
 <layout:error title="404 PAGE NOT FOUND">
-	${status} ${method} ${URI} ${exception.message}
+	<div class="form_box mt20">
+		<h1>${ empty statusCode ? status : statusCode }</h1> 
+		<h2>${method} ${sessionScope.requestURL}</h2>
+		<c:if test="${!empty exception }">
+			<h3>${exception.message}</h3>
+		</c:if>
+		<c:if test="${ !empty errorMessage }">
+			<h3>${errorMessage}</h3>
+		</c:if>
+		<div class='btn_grp mt50' >
+			<a href="<c:url value="/" />">확인</a>
+		</div>
+	</div> <!--//  form_box -->
 </layout:error>
