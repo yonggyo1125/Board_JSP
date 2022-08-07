@@ -4,7 +4,7 @@ import java.util.ResourceBundle;
 
 public class MemberException extends RuntimeException {
 	
-	public static ResourceBundle bundle;
+	protected static ResourceBundle bundle;
 	
 	static {
 		bundle = ResourceBundle.getBundle("bundle.common");

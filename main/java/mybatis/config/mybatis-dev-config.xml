@@ -29,5 +29,6 @@
   </environments>
   <mappers>
 	<mapper resource="models/member/MemberMapper.xml" />
+	<mapper resource="models/file/FileMapper.xml" />
   </mappers>
 </configuration>

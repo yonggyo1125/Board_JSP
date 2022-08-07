@@ -37,16 +37,10 @@
 		</c:if>
 	</head>
 	<body class="body-${empty bodyClass ?"main":bodyClass}">
-		<header>
-			<jsp:invoke fragment="header" />
-		</header>
+		<jsp:invoke fragment="header" />
 		<jsp:invoke fragment="main_menu" />
-		<main>
-			<jsp:doBody />
-		</main>
-		<footer>
-			<jsp:invoke fragment="footer" />
-		</footer>
+		<jsp:doBody />
+		<jsp:invoke fragment="footer" />
 	</body>
 	<iframe id="ifrmProcess" name="ifrmProcess" width="100%" height="0" class="dn"></iframe>
 </html>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="FileMapper">
+	<resultMap id="fileMap" type="models.file.FileDto">
+		<result property="id" column="id" />
+		<result property="gid" column="gid" />
+		<result property="fileName" column="fileName" />
+		<result property="contentType" column="contentType" />
+		<result property="fileSize" column="fileSize" />
+		<result property="isDone" column="isDone" />
+		<result property="regDt" column="regDt" />
+	</resultMap>
+	
+	<!-- 파일 조회 -->
+	<select id="file" parameterType="models.file.FileDto" resultMap="fileMap">
+		SELECT * FROM fileInfo WHERE id=#{id};
+	</select>
+	
+	<!-- 파일 목록 조회  -->
+	<select id="files" parameterType="models.file.FileDto" resultMap="fileMap">
+		SELECT * FROM fileInfo WHERE gid=#{gid} ORDER BY id ASC;
+	</select>
+	
+	<!--  파일 등록 -->
+	<insert id="register"
+			parameterType="models.file.FileDto"
+			useGeneratedKeys="true"
+			keyProperty="id">
+		INSERT INTO fileInfo (gid, fileName, contentType) VALUES (#{gid}, #{fileName}, #{contentType});
+	</insert>
+	
+	<!-- 파일 업로드 완료 처리  -->
+	<update id="done" parameterType="models.file.FileDto">
+		UPDATE fileInfo 
+			SET 
+				isDone = 1
+		WHERE gid=#{gid};
+	</update>
+	
+	<!--  파일 삭제 -->
+	<delete id="delete" parameterType="models.file.FileDto">
+		DELETE FROM fileInfo WHERE id=#{id};
+	</delete>
+</mapper>

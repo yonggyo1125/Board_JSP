@@ -1,4 +1,4 @@
-<%@ tag description="메인 레이아웃" pageEncoding="UTF-8" %>
+<%@ tag description="에러페이지 레이아웃" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="layout" tagdir="/WEB-INF/tags/layouts" %>

@@ -7,6 +7,7 @@
 <fmt:setBundle basename="bundle.common" />
 <layout:common title="${title}" bodyClass="${bodyClass}">
 	<jsp:attribute name="header">
+		<header>
 		<section class='top_menu'>
 			<div class="layout_width">
 				<c:if test="${ empty member }">
@@ -24,6 +25,7 @@
 				<fmt:message key="SITE_TITLE" />
 			</a>
 		</section>
+		</header>
 	</jsp:attribute>
 	<jsp:attribute name="main_menu">
 	<nav>
@@ -36,11 +38,15 @@
 	</nav>
 	</jsp:attribute>
 	<jsp:attribute name="footer">
+		<footer>
 		&copy;CopyRight ...
+		</footer>
 	</jsp:attribute>
 	<jsp:body>
-		<div class='layout_width'>
-			<jsp:doBody />
-		</div>
+		<main>
+			<div class='layout_width'>
+				<jsp:doBody />
+			</div>
+		</main>
 	</jsp:body>
 </layout:common> 
