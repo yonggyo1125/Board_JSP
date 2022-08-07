@@ -1071,3 +1071,9 @@ const fileUpload = {
 ... 생략
 
 ```
+
+
+### 구현 화면
+
+![image1](https://raw.githubusercontent.com/yonggyo1125/curriculum300H/main/5.JSP2%20%26%20JSP%20%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8(60%EC%8B%9C%EA%B0%84)/9%EC%9D%BC%EC%B0%A8(3h)%20-%20%ED%8C%8C%EC%9D%BC%EC%97%85%EB%A1%9C%EB%93%9C%2C%20%ED%8C%8C%EC%9D%BC%EB%8B%A4%EC%9A%B4%EB%A1%9C%EB%93%9C/images/project/image1.png)
+
