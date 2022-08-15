@@ -10,6 +10,7 @@ public class MemberDto {
 	private String memNm; // 회원명 
 	private String email; // 이메일 
 	private String mobile; // 휴대전화
+	private String memType; // 회원 유형 (admin - 관리자, member - 일반회원)
 	private LocalDateTime regDt; // 가입일
 	private LocalDateTime modDt; // 정보 수정일
 	
@@ -76,6 +77,19 @@ public class MemberDto {
 		this.mobile = mobile;
 	}
 	
+	public String getMemType() {
+		return memType;
+	}
+
+	public void setMemType(String memType) {
+		
+		if (memType == null || memType.isBlank()) {
+			memType = "member"; // 기본값은 일반회원
+		}
+		
+		this.memType = memType;
+	}
+
 	public LocalDateTime getRegDt() {
 		return regDt;
 	}
@@ -95,6 +109,6 @@ public class MemberDto {
 	@Override
 	public String toString() {
 		return "MemberDto [memNo=" + memNo + ", memId=" + memId + ", memPw=" + memPw + ", memNm=" + memNm + ", email="
-				+ email + ", mobile=" + mobile + ", regDt=" + regDt + ", modDt=" + modDt + "]";
+				+ email + ", mobile=" + mobile + ",memType=" + memType +  ", regDt=" + regDt + ", modDt=" + modDt + "]";
 	}
 }

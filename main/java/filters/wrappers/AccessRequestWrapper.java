@@ -31,7 +31,7 @@ public class AccessRequestWrapper extends HttpServletRequestWrapper {
 		ResourceBundle common = ResourceBundle.getBundle("bundle.common");
 		
 		HttpSession session = request.getSession();
-		Object member = session.getAttribute("member");
+		MemberDto member = (session.getAttribute("member") == null)?null:(MemberDto)session.getAttribute("member");
 		
 		/** 회원 전용 URL 체크 S */
 		String memberUrls = bundle.getString("member_urls");
@@ -60,5 +60,13 @@ public class AccessRequestWrapper extends HttpServletRequestWrapper {
 			}
 		}
 		/** 비회원 전용 URL 체크 E */
+		
+		/** 관리자 전용 URL 체크 S */
+		if (URI.indexOf("/admin") != -1 && (member == null || ! member.getMemType().equals("admin"))) {
+			request.setAttribute("errorMessage", common.getString("ADMIN_ONLY"));
+			request.setAttribute("statusCode", 401);
+			response.sendError(401);
+		}
+		/** 관리자 전용 URL 체크 E */
 	}	
 }

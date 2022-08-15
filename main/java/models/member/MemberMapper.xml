@@ -8,6 +8,7 @@
 	 	<result property="memNm" column="memNm" />
 	 	<result property="email" column="email" />
 	 	<result property="mobile" column="mobile" />
+	 	<result property="memType" column="memType" />
 	 	<result property="regDt" column="regDt" />
 	 	<result property="modDt" column="modDt" />
 	 </resultMap>
