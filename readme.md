@@ -630,3 +630,16 @@ public class ImagesController extends HttpServlet {
 %>
 ```
 
+* * * 
+# 이미지 게시판 완성 화면
+
+![image1](https://raw.githubusercontent.com/yonggyo1125/curriculum300H/main/5.JSP2%20%26%20JSP%20%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8(60%EC%8B%9C%EA%B0%84)/10%EC%9D%BC%EC%B0%A8(3h)%20-%20%EC%9D%B4%EB%AF%B8%EC%A7%80%20%EA%B2%8C%EC%8B%9C%ED%8C%90%20%EB%A7%8C%EB%93%A4%EA%B8%B0/images/image1.png)
+
+![image2](https://raw.githubusercontent.com/yonggyo1125/curriculum300H/main/5.JSP2%20%26%20JSP%20%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8(60%EC%8B%9C%EA%B0%84)/10%EC%9D%BC%EC%B0%A8(3h)%20-%20%EC%9D%B4%EB%AF%B8%EC%A7%80%20%EA%B2%8C%EC%8B%9C%ED%8C%90%20%EB%A7%8C%EB%93%A4%EA%B8%B0/images/image2.png)
+
+![image3](https://raw.githubusercontent.com/yonggyo1125/curriculum300H/main/5.JSP2%20%26%20JSP%20%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8(60%EC%8B%9C%EA%B0%84)/10%EC%9D%BC%EC%B0%A8(3h)%20-%20%EC%9D%B4%EB%AF%B8%EC%A7%80%20%EA%B2%8C%EC%8B%9C%ED%8C%90%20%EB%A7%8C%EB%93%A4%EA%B8%B0/images/image3.png)
+
+![image4](https://raw.githubusercontent.com/yonggyo1125/curriculum300H/main/5.JSP2%20%26%20JSP%20%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8(60%EC%8B%9C%EA%B0%84)/10%EC%9D%BC%EC%B0%A8(3h)%20-%20%EC%9D%B4%EB%AF%B8%EC%A7%80%20%EA%B2%8C%EC%8B%9C%ED%8C%90%20%EB%A7%8C%EB%93%A4%EA%B8%B0/images/image4.png)
+
+![image5](https://raw.githubusercontent.com/yonggyo1125/curriculum300H/main/5.JSP2%20%26%20JSP%20%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8(60%EC%8B%9C%EA%B0%84)/10%EC%9D%BC%EC%B0%A8(3h)%20-%20%EC%9D%B4%EB%AF%B8%EC%A7%80%20%EA%B2%8C%EC%8B%9C%ED%8C%90%20%EB%A7%8C%EB%93%A4%EA%B8%B0/images/image5.png)
+
