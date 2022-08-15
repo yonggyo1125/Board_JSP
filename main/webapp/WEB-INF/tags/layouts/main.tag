@@ -17,6 +17,9 @@
 				<c:if test="${ ! empty member }">
 					<a href="<c:url value="/mypage" />"><fmt:message key="MYPAGE" /></a>
 					<a href="<c:url value="/member/logout" />"><fmt:message key="MEMBER_LOGOUT" /></a>
+					<c:if test="${ member.memType == 'admin' }">
+						<a href="<c:url value="/admin" />"><fmt:message key="ADMIN_MENU" /></a>
+					</c:if>
 				</c:if>
 			</div>
 		</section>

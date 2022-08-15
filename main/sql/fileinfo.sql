@@ -1,4 +1,4 @@
-CREATE TABLE `fileinfo` (
+CREATE TABLE `fileInfo` (
   `id` INT NOT NULL AUTO_INCREMENT COMMENT '파일등록번호',
   `gid` VARCHAR(45) COMMENT '그룹 ID',
   `fileName` VARCHAR(80) NOT NULL COMMENT '파일명',

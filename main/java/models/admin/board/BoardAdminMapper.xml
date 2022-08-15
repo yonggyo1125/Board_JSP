@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="BoardAdminMapper">
+	<resultMap id="boardAdminMap" type="models.admin.board.BoardAdminDto">
+		<result property="boardId" column="boardId" />
+		<result property="boardNm" column="boardNm" />
+		<result property="isUse" column="isUse" />
+		<result property="noOfRows" column="noOfRows" />
+		<result property="useComment" column="useComment" />
+		<result property="regDt" column="regDt" />
+		<result property="modDt" column="modDt" />
+	</resultMap>
+	
+	<!-- 게시판 설정 조회 -->
+	<select id="board" parameterType="models.admin.board.BoardAdminDto" resultMap="boardAdminMap">
+		SELECT * FROM boardAdmin WHERE boardId=#{boardId};
+	</select>
+	
+	<!--  게시판 설정 목록 조회  -->
+	<select id="boards" parameterType="models.admin.board.BoardAdminDto" resultMap="boardAdminMap">
+		SELECT * FROM boardAdmin ORDER BY regDt DESC
+	</select>
+	
+	<!--  게시판 아이디 중복 체크 -->
+	<select id="duplicateCheck" parameterType="models.admin.board.BoardAdminDto" resultType="int">
+		SELECT COUNT(*) FROM boardAdmin WHERE boardId=#{boardId};
+	</select>
+	
+	<!-- 게시판 설정 추가 -->
+	<insert id="register" parameterType="models.admin.board.BoardAdminDto">
+		INSERT INTO boardAdmin (boardId, boardNm, isUse, noOfRows, useComment) 
+			VALUES (#{boardId}, #{boardNm}, #{isUse}, #{noOfRows}, #{useComment});
+	</insert>
+	
+	<!-- 게시판 설정 수정 -->
+	<update id="update" parameterType="models.admin.board.BoardAdminDto">
+		UPDATE boardAdmin
+			SET 
+				boardNm=#{boardNm},
+				isUse=#{isUse},
+				noOfRows=#{noOfRows},
+				useComment=#{useComment},
+				modDt=NOW()
+			WHERE boardId=#{boardId};
+	</update>
+	
+	<!-- 게시판 설정 삭제 -->
+	<delete id="delete" parameterType="models.admin.board.BoardAdminDto">
+		DELETE FROM boardAdmin WHERE boardId=#{boardId};
+	</delete>
+</mapper>

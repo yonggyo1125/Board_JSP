@@ -1,0 +1,19 @@
+/** 공통 */
+h2 { border-bottom: 2px solid #212121; padding-bottom: 10px; margin-bottom: 20px; }
+main { width: 1200px;  padding: 20px; }
+
+dl { display: flex; width: 100%; margin: 10px 0; }
+dt { width: 150px; }
+dd { width: calc(100% - 150px); }
+
+.btn_grp { margin-top: 30px; }
+
+.inline_block { display: block; margin: 0 !important; }
+.inline_block  * { display: inline-block !important; }
+.inline_block  button { padding-left: 20px; padding-right: 20px;  }
+
+/** 테이블 공통 S */
+.table_rows { width: 100%; border-spacing: 0; padding: 0; margin-bottom: 10px; }
+.table_rows thead th {  background-color: orange;  padding: 10px; }
+.table_rows tbody td { border-bottom: 1px solid #212121; padding: 10px; }
+/** 테이블 공통 E */

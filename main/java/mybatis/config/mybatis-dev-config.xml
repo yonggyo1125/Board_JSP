@@ -30,5 +30,6 @@
   <mappers>
 	<mapper resource="models/member/MemberMapper.xml" />
 	<mapper resource="models/file/FileMapper.xml" />
+	<mapper resource="models/admin/board/BoardAdminMapper.xml" />
   </mappers>
 </configuration>
