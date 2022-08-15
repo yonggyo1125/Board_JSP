@@ -21,6 +21,11 @@
 		SELECT * FROM fileInfo WHERE gid=#{gid} ORDER BY id ASC;
 	</select>
 	
+	<!--  파일 업로드 완료 목록 내림차순 조회 -->
+	<select id="filesDoneDESC" parameterType="models.file.FileDto" resultMap="fileMap">
+		SELECT * FROM fileInfo WHERE gid=#{gid} AND isDone=1 ORDER BY id DESC
+	</select>
+	
 	<!--  파일 등록 -->
 	<insert id="register"
 			parameterType="models.file.FileDto"

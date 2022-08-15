@@ -66,6 +66,25 @@ public class FileDao {
 	}
 	
 	/**
+	 * 파일 업로드 완료 처리된 파일 목록 조회
+	 * 
+	 * @param {String} gid 그룹 ID 
+	 * @return {List<FileDto>}
+	 */
+	public List<FileDto> getsDoneDesc(String gid) {
+		SqlSession sqlSession = Connection.getSqlSession();
+		
+		FileDto param = new FileDto();
+		param.setGid(gid);
+		
+		List<FileDto> files = sqlSession.selectList("FileMapper.filesDoneDESC", param);
+		
+		sqlSession.close();
+		
+		return files;
+	}
+	
+	/**
 	 * 파일 그룹별 완료 처리 
 	 * 
 	 * @param {String} gid 파일 그룹 ID
@@ -75,7 +94,7 @@ public class FileDao {
 		FileDto param = new FileDto();
 		param.setGid(gid);
 		param.setIsDone(1);
-		sqlSession.update("FileMapper", param);
+		sqlSession.update("FileMapper.done", param);
 		sqlSession.commit();
 		sqlSession.close();
 	}

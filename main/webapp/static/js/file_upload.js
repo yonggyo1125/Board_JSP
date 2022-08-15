@@ -16,6 +16,30 @@ const fileUpload = {
 		}
 		
 		formData.append("gid", gid);
+		
+		/**  이미지 전용 처리 S */
+		if (el.dataset.isImageOnly) {
+			formData.append("isImageOnly", true);
+			try {
+				for (file of files) {
+					// 이미지가 아닌 파일이 있다면
+					if (file.type.indexOf("image") == -1) {
+						throw new Error(`이미지 형식의 파일만 업로드 가능합니다. - ${file.name}`);
+					}
+				}
+			} catch (err) {
+				alert(err.message);
+				console.log("테스트1");
+				return;
+			}
+		}
+		/**  이미지 전용 처리 E */
+	
+		/** 업로드 완료 처리 항목이 있다면 추가  */
+		if (el.dataset.updateDone) {
+			formData.append("isUpdateDone", true);
+		}
+		
 		const xhr = new XMLHttpRequest();
 		xhr.open("POST", location.pathname);
 		xhr.addEventListener("readystatechange", function() {
@@ -40,6 +64,12 @@ const fileUpload = {
 							deleteEl.addEventListener("click", fileUpload.delete);
 						}
 						/** 삭제 이벤트 처리 E */
+						
+						/** 콜백 이벤트 처리 S */
+						if (typeof parent.fileUploadCallback == 'function') {
+							parent.fileUploadCallback(data);
+						}
+						/** 콜백 이벤트 처리 E */
 					}
 				} // endif
 				

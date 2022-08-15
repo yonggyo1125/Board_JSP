@@ -47,11 +47,18 @@ input[type='checkbox']+label.standalone { padding: 0; height: 20px; width: 20px;
 .btn_grp button:first-of-type { margin-right: 3px; background-color: #ffffff; color: #212121; }
 .btn_grp button:last-of-type { margin-left: 3px; }
 .btn_grp button.black { background-color: #212121; color: #ffffff; }
+.sbtn { border: 1px solid #212121; padding: 8px 15px; border-radius: 3px; color: #212121; background-color: #ffffff; cursor: pointer; font-size: 1rem; }
 
 /** 정렬 */
 .ac { text-align: center; }
 .al { text-align: left; }
 .ar { text-align: right; }
+
+/** 레이어팝업 공통 */
+#layer_dim { background:rgba(0,0,0, 0.7); position: fixed; top: 0; left: 0; width: 100%; height: 100%; cursor: pointer; z-index: 10; }
+#layer_popup { background: #ffffff; position: fixed; z-index: 11; overflow-x: hidden; overflow-y: auto; }
+#layer_popup .popup_title { border-bottom: 1px solid #000000;  margin-bottom: 20px; font-size: 1.15rem; font-weight: bold; padding: 0 5px 13px; }
+#layer_popup .layer_close { cursor: pointer; position: absolute; right: 10px; top: 10px; font-size: 1.8rem; }
 
 /** 헤더 영역 */
 header .top_menu { background-color: #f8f8f8; border-bottom: 1px solid #d5d5d5; padding: 10px; }

@@ -22,6 +22,7 @@
 		 	<link rel="stylesheet" type="text/css" href="<c:url value="/static/css/${css}.css" />" />
 		 	</c:forEach>
 		 </c:if>
+		 <script src="<c:url  value='/static/js/layer.js' />"></script>
 		<script src="<c:url  value='/static/js/common.js' />"></script>
 		<%-- 추가 JS --%>
 		<c:if test="${ !empty addJs }">

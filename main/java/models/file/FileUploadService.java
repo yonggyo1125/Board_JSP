@@ -46,9 +46,11 @@ public class FileUploadService {
 		/** 일반 데이터 처리  S */  
 		Map<String, String> requestParams = new HashMap<>();
 		for(FileItem item : items) {
-			String key = item.getFieldName();
-			String value = item.getString("UTF-8");
-			requestParams.put(key, value);
+			if (item.isFormField()) { 
+				String key = item.getFieldName();
+				String value = item.getString("UTF-8");
+				requestParams.put(key, value);
+			}
 		}
 		/** 일반 데이터 처리  E */
 		
@@ -65,7 +67,8 @@ public class FileUploadService {
 				long fileSize = item.getSize();
 				
 				/** 이미지 전용 업로드일때 이미지가 아닌 파일은 건너 뛰기 */
-				if (isImageOnly != null && contentType.indexOf("image") != -1) {
+				
+				if (isImageOnly != null  && contentType.indexOf("image") == -1) {
 					continue;
 				}
 				
@@ -96,6 +99,13 @@ public class FileUploadService {
 			}
 		}
 		/** 업로드 파일 데이터 처리 E */
+		
+		/** 파일 업로드 바로 완료 처리가 있는 경우 처리 S */
+		if (requestParams.get("isUpdateDone") != null) {
+			String gid = requestParams.get("gid");
+			dao.updateDone(gid);
+		}
+		/** 파일 업로드 바로 완료 처리가 있는 경우 처리 E */
 		
 		return uploadedFiles;
 	}

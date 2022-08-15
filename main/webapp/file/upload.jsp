@@ -8,7 +8,7 @@
 	
 	<div class='stitle'><fmt:message key="FILE_SELECT" /></div>
 	<div class='xi-plus' id='add_file'>
-		<input type="file" name="file" id="file" multiple data-gid="${gid}">
+		<input type="file" name="file" id="file" multiple data-gid="${gid}"${empty param.isImageOnly ? "":" data-is-image-only='1'" }${empty param.updateDone ? "":" data-update-done='1'" }>
 	</div>
 		
 	<%-- 업로드된 파일 목록 출력 --%>
