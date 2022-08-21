@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="BoardMapper">
+	<resultMap id="boardMap" type="models.board.BoardDto">
+		<result property="id" column="id" />
+		<result property="boardId" column="boardId" />
+		<result property="gid" column="gid" />
+		<result property="memNo" column="memNo" />
+		<result property="memId" column="memId" />
+		<result property="memNm" column="memNm" />
+		<result property="poster" column="poster" />
+		<result property="subject" column="subject" />
+		<result property="content" column="content" />
+		<result property="regDt" column="regDt" />
+		<result property="modDt" column="modDt" />
+	</resultMap>
+
+	<!--  게시글 조회  -->
+	<select id="get" parameterType="models.board.BoardDto" resultMap="boardMap">
+		SELECT b.*, m.memId, m.memNm FROM boardData b 
+					LEFT JOIN member m ON b.memNo = m.memNo 
+			WHERE b.id=#{id};
+	</select>
+
+	<!-- 게시글 목록  -->
+	<select id="gets" parameterType="models.board.BoardListDto" resultMap="boardMap">
+		SELECT b.*, m.memId, m.memNm FROM boardData b 
+					LEFT JOIN member m ON b.memNo = m.memNo 
+			ORDER BY b.regDt DESC LIMIT #{offset}, #{limit};
+	</select>
+	
+	<!--  게시글 추가 -->
+	<insert id="register"  parameterType="models.board.BoardDto" 
+		useGeneratedKeys="true"
+		keyProperty="memNo">
+			INSERT INTO boardData (boardId, gid, memNo, poster, subject, content, regDt) 
+				VALUES (#{boardId}, #{gid}, #{memNo}, #{poster}, #{subject}, #{content}, #{regDt});
+	</insert>
+	
+	<!--  게시글 수정 -->
+	<update id="update" parameterType="models.board.BoardDto">
+		UPDATE boardData 
+				SET 
+					poster = #{poster},
+					subject = #{subject},
+					content = #{content}, 
+					modDt = NOW()
+			WHERE id = #{id};
+	</update>
+	
+	<!--  게시글 삭제  -->
+	<delete id="delete" parameterType="models.board.BoardDto">
+		DELETE FROM boardData WHERE id=#{id};
+	</delete>
+</mapper>
