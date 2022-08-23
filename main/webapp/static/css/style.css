@@ -19,6 +19,7 @@ ul, ol, dl, dd, dt { margin: 0; padding: 0; }
 .form_box dl { display: flex; align-items: center; padding: 3px 0; }
 .form_box dt { width: 80px; }
 .form_box dd { width: calc(100% - 80px); }
+.form_box2 { max-width: 950px; margin-bottom: 200px; }
 
 input[type='text'], 
 input[type='password'],

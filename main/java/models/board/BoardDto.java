@@ -10,6 +10,7 @@ public class BoardDto {
 	private String memId; // 회원 ID 
 	private String memNm; // 회원명
 	private String poster; // 작성자
+	private String guestPw; // 비회원 비밀번호
 	private String subject; // 게시글 제목 
 	private String content; // 게시글 내용 
 	private LocalDateTime regDt; // 등록일시
@@ -32,6 +33,10 @@ public class BoardDto {
 	}
 	
 	public String getGid() {
+		// gid가 없는 경우 자동 생성 
+		if (gid == null) {
+			gid = "" + System.currentTimeMillis();
+		}
 		return gid;
 	}
 	
@@ -71,6 +76,14 @@ public class BoardDto {
 		this.poster = poster;
 	}
 	
+	public String getGuestPw() {
+		return guestPw;
+	}
+
+	public void setGuestPw(String guestPw) {
+		this.guestPw = guestPw;
+	}
+
 	public String getSubject() {
 		return subject;
 	}
@@ -106,7 +119,7 @@ public class BoardDto {
 	@Override
 	public String toString() {
 		return "BoardDto [id=" + id + ", boardId=" + boardId + ", gid=" + gid + ", memNo=" + memNo + ", memId=" + memId
-				+ ", memNm=" + memNm + ", poster=" + poster + ", subject=" + subject + ", content=" + content
-				+ ", regDt=" + regDt + ", modDt=" + modDt + "]";
+				+ ", memNm=" + memNm + ", poster=" + poster + ", guestPw=" + guestPw + ", subject=" + subject
+				+ ", content=" + content + ", regDt=" + regDt + ", modDt=" + modDt + "]";
 	}
 }

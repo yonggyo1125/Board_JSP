@@ -29,7 +29,6 @@ const fileUpload = {
 				}
 			} catch (err) {
 				alert(err.message);
-				console.log("테스트1");
 				return;
 			}
 		}

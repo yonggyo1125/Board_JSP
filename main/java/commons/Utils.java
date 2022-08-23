@@ -3,7 +3,10 @@ package commons;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import models.member.MemberDto;
 
 /**
  * 유용한 공통 기능 모음
@@ -114,5 +117,32 @@ public class Utils {
 	
 	public static void back(HttpServletResponse response) {
 		back(response, "_self");
+	}
+	
+	/**
+	 * 로그인 여부 체크 
+	 * 
+	 * @param request
+	 * @return
+	 */
+	public static boolean isLogin(HttpServletRequest request) {
+		
+		return request.getSession().getAttribute("member") != null;
+	}
+	
+	/**
+	 * 로그인 회원정보 조회
+	 * 
+	 * @param request
+	 * @return
+	 */
+	public static MemberDto getMember(HttpServletRequest request) {
+		if (!isLogin(request)) {
+			return null;
+		}
+		
+		MemberDto member = (MemberDto)request.getSession().getAttribute("member");
+		
+		return member;
 	}
 }

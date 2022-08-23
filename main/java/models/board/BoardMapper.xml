@@ -9,6 +9,7 @@
 		<result property="memId" column="memId" />
 		<result property="memNm" column="memNm" />
 		<result property="poster" column="poster" />
+		<result property="guestPw" column="guestPw" />
 		<result property="subject" column="subject" />
 		<result property="content" column="content" />
 		<result property="regDt" column="regDt" />
@@ -32,9 +33,9 @@
 	<!--  게시글 추가 -->
 	<insert id="register"  parameterType="models.board.BoardDto" 
 		useGeneratedKeys="true"
-		keyProperty="memNo">
-			INSERT INTO boardData (boardId, gid, memNo, poster, subject, content, regDt) 
-				VALUES (#{boardId}, #{gid}, #{memNo}, #{poster}, #{subject}, #{content}, #{regDt});
+		keyProperty="id">
+			INSERT INTO boardData (boardId, gid, memNo, poster, guestPw, subject, content, regDt) 
+				VALUES (#{boardId}, #{gid}, #{memNo}, #{poster}, #{guestPw}, #{subject}, #{content}, #{regDt});
 	</insert>
 	
 	<!--  게시글 수정 -->
@@ -42,6 +43,7 @@
 		UPDATE boardData 
 				SET 
 					poster = #{poster},
+					guestPw=#{guestPw},
 					subject = #{subject},
 					content = #{content}, 
 					modDt = NOW()

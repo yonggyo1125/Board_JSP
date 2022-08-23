@@ -33,7 +33,7 @@
 						<label for='boardid_${status.index}'></label>
 					</td>
 					<td align='center'>
-						<a href="<c:url value="/board/list?id=" />${board.boardId}" target="_blank">${board.boardId}</a>
+						<a href="<c:url value="/board/list?boardId=" />${board.boardId}" target="_blank">${board.boardId}</a>
 					</td>
 					<td align='center'>${board.boardNm}</td>
 					<td align='center'>
