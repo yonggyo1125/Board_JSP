@@ -34,8 +34,8 @@
 	<insert id="register"  parameterType="models.board.BoardDto" 
 		useGeneratedKeys="true"
 		keyProperty="id">
-			INSERT INTO boardData (boardId, gid, memNo, poster, guestPw, subject, content, regDt) 
-				VALUES (#{boardId}, #{gid}, #{memNo}, #{poster}, #{guestPw}, #{subject}, #{content}, #{regDt});
+			INSERT INTO boardData (boardId, gid, memNo, poster, guestPw, subject, content) 
+				VALUES (#{boardId}, #{gid}, #{memNo}, #{poster}, #{guestPw}, #{subject}, #{content});
 	</insert>
 	
 	<!--  게시글 수정 -->

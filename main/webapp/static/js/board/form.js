@@ -71,6 +71,13 @@ window.addEventListener("DOMContentLoaded", function() {
 		});
 	}
 	/** 파일 추가 버튼 클릭 처리 E */
+	
+	/** 파일 삭제 버튼 클릭 처리 S */
+	const removeEls = document.querySelectorAll(".attach_images .remove, .attach_files .remove");
+	for (el of removeEls) {
+		el.addEventListener("click", boardForm.delete);
+	}
+	/** 파일 삭제 버튼 클릭 처리 E */
 });
 /** 이벤트 처리 E */
 

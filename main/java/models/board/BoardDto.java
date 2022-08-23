@@ -1,6 +1,9 @@
 package models.board;
 
+import java.util.List;
 import java.time.LocalDateTime;
+
+import models.file.FileDto;
 
 public class BoardDto {
 	private int id; // 게시글 등록 번호
@@ -15,6 +18,9 @@ public class BoardDto {
 	private String content; // 게시글 내용 
 	private LocalDateTime regDt; // 등록일시
 	private LocalDateTime modDt; // 수정일시
+	
+	private List<FileDto> imageFiles; // 이미지 파일 목록
+	private List<FileDto> attachedFiles; // 첨부이미지 파일 목록 
 	
 	public int getId() {
 		return id;
@@ -116,10 +122,27 @@ public class BoardDto {
 		this.modDt = modDt;
 	}
 
+	public List<FileDto> getImageFiles() {
+		return imageFiles;
+	}
+
+	public void setImageFiles(List<FileDto> imageFiles) {
+		this.imageFiles = imageFiles;
+	}
+
+	public List<FileDto> getAttachedFiles() {
+		return attachedFiles;
+	}
+
+	public void setAttachedFiles(List<FileDto> attachedFiles) {
+		this.attachedFiles = attachedFiles;
+	}
+
 	@Override
 	public String toString() {
 		return "BoardDto [id=" + id + ", boardId=" + boardId + ", gid=" + gid + ", memNo=" + memNo + ", memId=" + memId
 				+ ", memNm=" + memNm + ", poster=" + poster + ", guestPw=" + guestPw + ", subject=" + subject
-				+ ", content=" + content + ", regDt=" + regDt + ", modDt=" + modDt + "]";
+				+ ", content=" + content + ", regDt=" + regDt + ", modDt=" + modDt + ", imageFiles=" + imageFiles
+				+ ", attachedFiles=" + attachedFiles + "]";
 	}
 }

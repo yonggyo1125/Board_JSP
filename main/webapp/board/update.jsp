@@ -7,7 +7,7 @@
 <layout:main title="${title}" bodyClass="board_form">
 <h1 class="mtitle">${boardInfo.boardNm}</h1>	
 <form id="frmUpdate" name="frmUpdate" class='form_box form_box2'  method="post" action="<c:url value="/board/update" />" target="ifrmProcess">
-	<input type="hidden" name="id" value="${board.Id}" />
+	<input type="hidden" name="id" value="${board.id}" />
 	<jsp:include page="_form.jsp" />
 	<div class='btn_grp'>
 		<button type="reset"><fmt:message key="RESET" /></button>

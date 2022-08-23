@@ -61,7 +61,6 @@ public class BoardDao {
 	 */
 	public boolean register(BoardDto dto) {
 		SqlSession sqlSession = Connection.getSqlSession();
-		
 		int affectedRows = sqlSession.insert("BoardMapper.register", dto);
 		sqlSession.commit();
 		sqlSession.close();

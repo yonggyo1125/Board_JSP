@@ -119,6 +119,8 @@ public class Utils {
 		back(response, "_self");
 	}
 	
+	
+	
 	/**
 	 * 로그인 여부 체크 
 	 * 
@@ -144,5 +146,20 @@ public class Utils {
 		MemberDto member = (MemberDto)request.getSession().getAttribute("member");
 		
 		return member;
+	}
+	
+	/**
+	 * 관리자 여부 체크 
+	 * 
+	 * @param request
+	 * @return
+	 */
+	public static boolean isAdmin(HttpServletRequest request) {
+		MemberDto member = getMember(request);
+		if (member == null) {
+			return false;
+		}
+		
+		return member.getMemType().equals("admin");
 	}
 }

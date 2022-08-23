@@ -24,7 +24,10 @@ CREATE TABLE `boardData` (
 ```java 
 package models.board;
 
+import java.util.List;
 import java.time.LocalDateTime;
+
+import models.file.FileDto;
 
 public class BoardDto {
 	private int id; // 게시글 등록 번호
@@ -39,6 +42,9 @@ public class BoardDto {
 	private String content; // 게시글 내용 
 	private LocalDateTime regDt; // 등록일시
 	private LocalDateTime modDt; // 수정일시
+	
+	private List<FileDto> imageFiles; // 이미지 파일 목록
+	private List<FileDto> attachedFiles; // 첨부이미지 파일 목록 
 	
 	public int getId() {
 		return id;
@@ -140,11 +146,28 @@ public class BoardDto {
 		this.modDt = modDt;
 	}
 
+	public List<FileDto> getImageFiles() {
+		return imageFiles;
+	}
+
+	public void setImageFiles(List<FileDto> imageFiles) {
+		this.imageFiles = imageFiles;
+	}
+
+	public List<FileDto> getAttachedFiles() {
+		return attachedFiles;
+	}
+
+	public void setAttachedFiles(List<FileDto> attachedFiles) {
+		this.attachedFiles = attachedFiles;
+	}
+
 	@Override
 	public String toString() {
 		return "BoardDto [id=" + id + ", boardId=" + boardId + ", gid=" + gid + ", memNo=" + memNo + ", memId=" + memId
 				+ ", memNm=" + memNm + ", poster=" + poster + ", guestPw=" + guestPw + ", subject=" + subject
-				+ ", content=" + content + ", regDt=" + regDt + ", modDt=" + modDt + "]";
+				+ ", content=" + content + ", regDt=" + regDt + ", modDt=" + modDt + ", imageFiles=" + imageFiles
+				+ ", attachedFiles=" + attachedFiles + "]";
 	}
 }
 ```
@@ -215,8 +238,8 @@ public class BoardListDto extends BoardDto {
 	<insert id="register"  parameterType="models.board.BoardDto" 
 		useGeneratedKeys="true"
 		keyProperty="id">
-			INSERT INTO boardData (boardId, gid, memNo, poster, guestPw, subject, content, regDt) 
-				VALUES (#{boardId}, #{gid}, #{memNo}, #{poster}, #{guestPw}, #{subject}, #{content}, #{regDt});
+			INSERT INTO boardData (boardId, gid, memNo, poster, guestPw, subject, content) 
+				VALUES (#{boardId}, #{gid}, #{memNo}, #{poster}, #{guestPw}, #{subject}, #{content});
 	</insert>
 	
 	<!--  게시글 수정 -->
@@ -236,6 +259,25 @@ public class BoardListDto extends BoardDto {
 		DELETE FROM boardData WHERE id=#{id};
 	</delete>
 </mapper>
+```
+
+#### src/main/java/mybatis/config/mybatis-config.xml && mybatis-dev-config.xml 
+
+```xml
+
+... 생략 
+
+<configuration>
+	
+	... 생략 
+	
+	<mappers>
+
+	... 생략 
+	
+	<mapper resource="models/board/BoardMapper.xml" />
+  </mappers>
+</configuration>
 ```
 
 #### src/main/java/models/board/BoardDao.java
@@ -472,6 +514,21 @@ public class Utils {
 		
 		return member;
 	}
+	
+	/**
+	 * 관리자 여부 체크 
+	 * 
+	 * @param request
+	 * @return
+	 */
+	public static boolean isAdmin(HttpServletRequest request) {
+		MemberDto member = getMember(request);
+		if (member == null) {
+			return false;
+		}
+		
+		return member.getMemType().equals("admin");
+	}
 }
 ```
 
@@ -484,10 +541,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import commons.BadRequestException;
 
 import static commons.Utils.*;
 import models.validation.Validator;
+import models.board.BoardDao;
+import models.member.MemberDto;
 
 /**
  * 게시글 작성, 수정, 삭제시 유효성 검사 
@@ -499,6 +562,8 @@ public class BoardValidator implements Validator {
 	
 	private static BoardValidator instance = new BoardValidator();
 	
+	ResourceBundle bundle = ResourceBundle.getBundle("bundle.board");
+
 	private BoardValidator() {}
 	/**
 	 * 유효성 검사 
@@ -508,7 +573,7 @@ public class BoardValidator implements Validator {
 	 */
 	public void validate(HttpServletRequest request, String mode) {
 		Map<String, String> checkFields = new HashMap<>();
-		ResourceBundle bundle = ResourceBundle.getBundle("bundle.board");
+		
 		// 게시글 등록, 수정 
 		if (mode.equals("register") || mode.equals("update")) {
 			if (mode.equals("register")) {
@@ -521,9 +586,9 @@ public class BoardValidator implements Validator {
 			checkFields.put("subject", bundle.getString("REQUIRED_SUBJECT"));
 			checkFields.put("poster", bundle.getString("REQUIRED_POSTER"));
 			
-			if (!isLogin(request)) { // 비회원 비밀번호는 로그인 하지 않는 경우만 체크 
+			if (request.getParameter("guestPw") != null) { // 비회원 비밀번호가 있는 경우는 체크 
 				checkFields.put("guestPw", bundle.getString("REQUIRED_GUEST_PW"));
-			}
+			}	
 			checkFields.put("content", bundle.getString("REQUIRED_CONTENT"));
 		} else if (mode.equals("delete")) {
 			checkFields.put("id", bundle.getString("REQUIRED_ID"));
@@ -531,6 +596,75 @@ public class BoardValidator implements Validator {
 		
 		// 필수 데이터 검증
 		requiredCheck(request, checkFields);
+		
+		/** 게시글 수정 또는 삭제인 경우는 본인 게시글인지 체크 S */ 
+		if (mode.equals("update") || mode.equals("delete")) {
+			permissionCheck(request);
+		}
+		/** 게시글 수정 또는 삭제인 경우는 본인 게시글인지 체크 E */ 
+	}
+	
+	/**
+	 * 게시글 접근 권한 체크 
+	 * 
+	 * @param {HttpServletRequest} request
+	 * @param {int} id
+	 */
+	public void permissionCheck(HttpServletRequest request) {
+		permissionCheck(request, null);
+	}
+	
+	public void permissionCheck(HttpServletRequest request, HttpServletResponse response) {
+		
+		String _id = request.getParameter("id").trim();
+		int id;
+		try {
+			id = Integer.parseInt(_id);
+		} catch (Exception e) {
+			throw new BadRequestException();
+		}
+		
+		BoardDto board = BoardDao.getInstance().get(id);
+		if (board == null) {
+			throw new BoardException(bundle.getString("NOT_EXISTS_BOARD"));
+		}
+		// 관리자는 무조건 권한 있음 
+		if (isAdmin(request)) {
+			return;
+		}
+		
+		int memNo = board.getMemNo();
+		MemberDto member = getMember(request);
+		if (memNo > 0) {
+			if (member == null ||  member.getMemNo() != memNo) {
+				throw new BoardException(bundle.getString("NOT_YOUR_POST"));
+			}
+		} else {
+			/** 
+			 * 비회원 게시글의 경우 비밀번호 일치 여부 확인 후 일치하는 경우 
+			 * password_confirmed_게시글 번호 형태로 세션에 추가된다.  없으면 본인 글 검증 안된 상태
+			 */
+			if (request.getSession().getAttribute("password_confirmed_" + id) == null) {
+				if (response != null) {
+					
+					/** 
+					 * 비회원 게시글의 경우 비밀번호 검증 여부 체크 하고 
+					 * 미 검증시 비밀번호 확인 페이지로 이동  
+					 */
+					if (board.getMemNo() == 0 && request.getSession().getAttribute("password_confirmed_" + id) == null) {
+						try {
+							request.setAttribute("board", board);
+							RequestDispatcher rd = request.getRequestDispatcher("/board/password.jsp");
+							rd.forward(request, response);
+						} catch (Exception e) { 
+							e.printStackTrace();
+						} 
+					}
+				} else {
+					throw new BoardException(bundle.getString("NOT_YOUR_POST"));
+				}
+			}
+		}
 	}
 	
 	public static BoardValidator getInstance() {
@@ -551,6 +685,8 @@ package models.board;
 import javax.servlet.http.HttpServletRequest;
 
 import static commons.Utils.*;
+
+import models.file.FileDao;
 import models.member.MemberDto;
 
 import org.mindrot.bcrypt.BCrypt;
@@ -578,6 +714,7 @@ public class WriteService {
 		board.setGid(request.getParameter("gid"));
 		board.setSubject(request.getParameter("subject"));
 		board.setContent(request.getParameter("content"));
+		board.setPoster(request.getParameter("poster"));
 		if (member == null) { // 비회원인 경우 
 			board.setMemNo(0);
 			String hash = BCrypt.hashpw(request.getParameter("guestPw"), BCrypt.gensalt(12));
@@ -590,6 +727,12 @@ public class WriteService {
 		if (!result) {
 			return null;
 		}
+		
+		// 이미지 및 첨부 파일 업로드 완료 처리
+		String gid = board.getGid();
+		FileDao fileDao = FileDao.getIntance();
+		fileDao.updateDone(gid + "_image");
+		fileDao.updateDone(gid + "_attached");
 		
 		return board;
 	}
@@ -624,19 +767,76 @@ public class WriteService {
 <%@ page contentType="text/html; charset=utf-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@ taglib prefix="layout" tagdir="/WEB-INF/tags/layouts" %>
 <fmt:setBundle basename="bundle.board" />
-<fmt:message var="title" key="BOARD_WRITE" />
-<layout:main title="${title}" bodyClass="board_form">
-<h1 class="mtitle">${boardInfo.boardNm}</h1>	
-<form id="frmRegist" class='form_box form_box2' name="frmRegist" method="post" action="<c:url value="/board/write" />" target="ifrmProcess">
-	<jsp:include page="_form.jsp" />
-	<div class='btn_grp'>
-		<button type="reset"><fmt:message key="RESET" /></button>
-		<button type="submit"><fmt:message key="WRITE" /></button>
-	</div>
-</form>
-</layout:main>
+<input type="hidden" name="gid" value="${board.gid}">
+<dl>
+	<dt class='mobile_hidden'>
+		<fmt:message key="SUBJECT" />
+	</dt>
+	<dd class='mobile_fullwidth' >
+		<input type="text" name="subject" value="${board.subject}" placeholder="<fmt:message key="SUBJECT" />" />
+	</dd>
+</dl>
+<dl>
+	<dt class='mobile_hidden'>
+		<fmt:message key="POSTER" />
+	</dt>
+	<dd class='mobile_fullwidth' >
+		<input type="text" name="poster" value="${ empty board.poster ? member.memNm : board.poster }" placeholder="<fmt:message key="POSTER" />" />
+	</dd> 
+</dl>
+<c:if test="${ empty member || (!empty board && board.memNo == 0) }">
+<dl>
+	<dt class='mobile_hidden'>
+		<fmt:message key="GUEST_PW" />
+	</dt>
+	<dd class='mobile_fullwidth' >
+		<input type="password" name=guestPw placeholder="<fmt:message key="GUEST_PW" />" />
+	</dd>
+</dl>
+</c:if>
+<dl>
+	<dt class='mobile_hidden'>
+		<fmt:message key="CONTENT" />
+	</dt>
+	<dd class='mobile_fullwidth' >
+		<textarea name="content" id="content" placeholder="<fmt:message key="CONTENT" />">${board.content}</textarea>
+		<button type="button" id="add_images"><fmt:message key="ADD_IMAGES" /></button>
+		<ul class="attach_images">
+		<c:if test="${board.imageFiles != null }">
+			<c:forEach var="file" items="${board.imageFiles}">
+				<li>
+					<a href='../file/download?id=${file.id}'>${file.fileName}</a>
+					<span class="remove" data-id=${file.id}>[X]</span>
+				</li>
+			</c:forEach>  
+		</c:if>
+		</ul>
+	</dd>
+</dl>
+<dl>
+	<dt>파일첨부</dt>
+	<dd>
+		<button type="button" id="add_files"><fmt:message key="ADD_FILES" /></button>
+		<ul class="attach_files">
+		<c:if test="${board.attachedFiles != null }">
+			<c:forEach var="file" items="${board.attachedFiles}">
+				<li>
+					<a href='../file/download?id=${file.id}'>${file.fileName}</a>
+					<span class="remove" data-id=${file.id}>[X]</span>
+				</li>
+			</c:forEach>  
+		</c:if>
+		</ul>
+	</dd>
+</dl>
+
+<script type="text/html" id="tpl_file">
+	<li>
+		<a href='../file/download?id=#[id]'>#[fileName]</a>
+		<span class="remove" data-id=#[id]>[X]</span>
+	</li>
+</script>
 ```
 
 #### src/main/webapp/static/js/form.js
@@ -715,6 +915,13 @@ window.addEventListener("DOMContentLoaded", function() {
 		});
 	}
 	/** 파일 추가 버튼 클릭 처리 E */
+	
+	/** 파일 삭제 버튼 클릭 처리 S */
+	const removeEls = document.querySelectorAll(".attach_images .remove, .attach_files .remove");
+	for (el of removeEls) {
+		el.addEventListener("click", boardForm.delete);
+	}
+	/** 파일 삭제 버튼 클릭 처리 E */
 });
 /** 이벤트 처리 E */
 
@@ -762,11 +969,15 @@ function fileUploadCallback(files) {
 ```
 BOARD_WRITE=게시글 작성
 BOARD_UPDATE=게시글 수정
+BOARD_PASSWORD=비밀번호 확인
+PASSWORD_CONFIRM=비밀번호가 확인되었습니다.
+
 WRITE=작성하기
 UPDATE=수정하기
 DELETE=삭제하기
 VIEW=게시글보기
 RESET=다시 작성
+CONFIRM=확인하기
 
 SUBJECT=제목
 CONTENT=내용
@@ -779,6 +990,10 @@ ADD_FILES=파일 추가
 
 # 유효성 검사
 NOT_EXISTS_BOARD=등록되지 않은 게시판입니다.
+POST_NOT_EXISTS=등록되지 않은 게시글입니다.
+NOT_YOUR_POST=본인이 작성한 게시글이 아닙니다.
+INCORECT_PASSWORD=비밀번호가 일치하지 않습니다.
+
 REQUIRED_BOARD_ID=잘못된 접근입니다.
 REQUIRED_ID=잘못된 접근입니다.
 REQUIRED_GROUP_ID=잘못된 접근입니다.
@@ -793,11 +1008,13 @@ REQUIRED_CONTENT=게시글을 입력하세요.
 ```
 BOARD_WRITE=Write a Post
 BOARD_UPDATE=Update a Post
+BOARD_PASSWORD=Password Check
 WRITE=Write
 UPDATE=Update
 DELETE=Delete
 VIEW=View
 RESET=Reset
+CONFIRM=Confirm
 
 SUBJECT=Subject
 CONTENT=Content
@@ -810,6 +1027,11 @@ ADD_FILES=Add files
 
 # 유효성 검사
 NOT_EXISTS_BOARD = The board doesn't exists.
+POST_NOT_EXISTS=The Post doesn't exists.
+NOT_YOUR_POST=This is not your post.
+PASSWORD_CONFIRM=Your password confirmed.
+INCORECT_PASSWORD=Your password is incorrect.
+
 REQUIRED_BOARD_ID=Wrong request
 REQUIRED_ID=Wrong request
 REQUIRED_GROUP_ID=Wrong request
@@ -819,15 +1041,191 @@ REQUIRED_GUEST_PW=Please Input the guest password.
 REQUIRED_CONTENT=Please Input the content.
 ```
 
-
-
 * * * 
 # 게시글 수정
+
+#### src/main/java/models/board/ViewService.java
+
+```java
+package models.board;
+
+import java.util.List;
+import java.util.ResourceBundle;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import commons.BadRequestException;
+import models.file.FileDao;
+import models.file.FileDto;
+
+
+public class ViewService {
+	
+	public BoardDto view(HttpServletRequest request, HttpServletResponse response) {
+		String _id = request.getParameter("id");
+		if (_id == null || _id.isBlank()) {
+			throw new BadRequestException();
+		}
+		
+		int id;
+		try {
+			id = Integer.parseInt(_id.trim());  
+		} catch (Exception e) { // 숫자가 아니라면 예외 발생
+			throw new BadRequestException();
+		}
+		
+		// 게시글 접근 권한 체크
+		 BoardValidator.getInstance().permissionCheck(request, response);
+		
+		ResourceBundle bundle = ResourceBundle.getBundle("bundle.board");
+		
+		/** 게시글 조회 S */
+		BoardDao dao = BoardDao.getInstance();
+		BoardDto board = dao.get(id);
+		if (board == null) {
+			throw new BoardException(bundle.getString("POST_NOT_EXISTS"));
+		}
+		
+		String gid = board.getGid();
+		FileDao fileDao = FileDao.getIntance();
+		
+		// 이미지 파일 조회 
+		List<FileDto> imageFiles = fileDao.getsDoneDesc(gid + "_image");
+		board.setImageFiles(imageFiles);
+		
+		// 첨부 파일 조회 
+		List<FileDto> attachedFiles = fileDao.getsDoneDesc(gid + "_attached");
+		board.setAttachedFiles(attachedFiles);
+		/** 게시글 조회 E */
+		
+		return board;
+	}
+}
+```
 
 #### src/main/java/controller/board/UpdateController.java
 
 ```java
+package controllers.board;
 
+import java.io.IOException;
+import java.util.ResourceBundle;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import static commons.Utils.*;
+import commons.BadRequestException;
+import models.board.ViewService;
+import models.admin.board.BoardAdminDao;
+import models.admin.board.BoardAdminDto;
+import models.board.BoardDto;
+import models.board.UpdateService;
+
+@WebServlet("/board/update")
+public class UpdateController extends HttpServlet {
+
+	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		try {
+			ResourceBundle bundle = ResourceBundle.getBundle("bundle.board");
+			BoardDto board = new ViewService().view(req, resp);
+			/** 게시판 설정 조회 S */
+			
+			req.setAttribute("board", board);
+			BoardAdminDto boardInfo = BoardAdminDao.getInstance().get(board.getBoardId());
+			if (boardInfo == null) {
+				throw new BadRequestException(bundle.getString("NOT_EXISTS_BOARD"));
+			}
+			
+			req.setAttribute("boardInfo", boardInfo);
+			
+		} catch (RuntimeException e) {
+			e.printStackTrace();
+			alertError(resp, e, "history.back();");
+			return;
+		}
+		
+		String[] addJs = { "board/form", "ckeditor/ckeditor" };
+		req.setAttribute("addJs", addJs);
+		
+		RequestDispatcher rd = req.getRequestDispatcher("/board/update.jsp");
+		rd.forward(req, resp);
+	}
+
+	@Override
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		try {
+			UpdateService service = new UpdateService();
+			BoardDto board = service.update(req);
+			
+			// 수정 완료 후 게시글 보기로 이동
+			String url = "../board/view?id=" + board.getId();
+			go(resp, url, "parent");
+		} catch (RuntimeException e) {
+			e.printStackTrace();
+			alertError(resp, e);
+		}
+	}
+}
+```
+
+### src/main/java/models/board/UpdateService.java
+
+```java
+package models.board;
+
+import javax.servlet.http.HttpServletRequest;
+
+import static commons.Utils.*;
+
+import models.file.FileDao;
+import models.member.MemberDto;
+
+import org.mindrot.bcrypt.BCrypt;
+
+public class UpdateService {
+	public BoardDto update(HttpServletRequest request) {
+		
+		/** 유효성 검사 S */
+		BoardValidator boardValidator = BoardValidator.getInstance();
+		boardValidator.validate(request, "update");
+		/** 유효성 검사 E */
+		
+		/** 게시글 수정 S */
+		BoardDao dao = BoardDao.getInstance();
+		BoardDto board = new BoardDto();
+		board.setId(Integer.parseInt(request.getParameter("id").trim()));
+		board.setBoardId(request.getParameter("boardId"));
+		board.setSubject(request.getParameter("subject"));
+		board.setContent(request.getParameter("content"));
+		board.setPoster(request.getParameter("poster"));
+		if (board.getMemNo() == 0) {
+			String hash = BCrypt.hashpw(request.getParameter("guestPw"), BCrypt.gensalt(12));
+			board.setGuestPw(hash);
+		}
+		boolean result = dao.update(board);
+		if (!result) {
+			return null;
+		}
+		
+		board = dao.get(board.getId());
+		
+		// 이미지 및 첨부 파일 업로드 완료 처리
+		String gid = board.getGid();
+		FileDao fileDao = FileDao.getIntance();
+		fileDao.updateDone(gid + "_image");
+		fileDao.updateDone(gid + "_attached");
+		/** 게시글 수정 E */
+		
+		return board;
+	}
+}
 ```
 
 #### src/main/webapp/board/update.jsp
@@ -851,4 +1249,81 @@ REQUIRED_CONTENT=Please Input the content.
 </form>
 </layout:main>
 ```
+
+### src/main/java/controllers/board/PasswordController.java
+
+```java
+package controllers.board;
+
+import java.io.IOException;
+import java.util.ResourceBundle;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import static commons.Utils.*;
+import models.board.PasswordCheckService;
+
+@WebServlet("/board/password")
+public class PasswordController extends HttpServlet {
+
+	@Override
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		try {
+			PasswordCheckService service = new PasswordCheckService();
+			service.check(req);
+			
+			ResourceBundle bundle = ResourceBundle.getBundle("bundle.board");
+			alert(resp, bundle.getString("PASSWORD_CONFIRM"), "parent.location.reload()");
+		} catch (RuntimeException e) {
+			e.printStackTrace();
+			alertError(resp, e);
+		}
+	}	
+}
+```
+
+#### src/main/webapp/board/password.jsp
+
+```jsp
+<%@ page contentType="text/html; charset=utf-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="layout" tagdir="/WEB-INF/tags/layouts" %>
+<fmt:setBundle basename="bundle.board" />
+<fmt:message var="title" key="BOARD_PASSWORD" />
+<layout:main title="${title}" bodyClass="board_password">
+<h1 class="mtitle">${title}</h1>
+<form class="form_box" method="post" action="<c:url value="/board/password" />" target="ifrmProcess" autocomplete="off">
+	<input type="hidden" name="id" value="${board.id}">
+	<dl>
+		<dt class='mobile_hidden'>
+			<fmt:message key="GUEST_PW" />
+		</dt>
+		<dd class='mobile_fullwidth' >
+			<input type="password" name="password" placeholder="<fmt:message key="GUEST_PW" />">
+		</dd>
+	</dl>
+	<div class="btn_grp mt10">
+		<button type="submit" class="black"><fmt:message key="CONFIRM" /></button>
+	</div>
+</form>
+</layout:main>
+```
+
+* * * 
+# 완성 화면
+
+![image1](https://raw.githubusercontent.com/yonggyo1125/curriculum300H/main/5.JSP2%20%26%20JSP%20%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8(60%EC%8B%9C%EA%B0%84)/12%EC%9D%BC%EC%B0%A8(3h)%20-%20%EA%B2%8C%EC%8B%9C%EA%B8%80%20%EC%9E%91%EC%84%B1%2C%20%EC%88%98%EC%A0%95%20%EA%B8%B0%EB%8A%A5%20%EA%B5%AC%ED%98%84/images/image1.png)
+
+![image2](https://raw.githubusercontent.com/yonggyo1125/curriculum300H/main/5.JSP2%20%26%20JSP%20%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8(60%EC%8B%9C%EA%B0%84)/12%EC%9D%BC%EC%B0%A8(3h)%20-%20%EA%B2%8C%EC%8B%9C%EA%B8%80%20%EC%9E%91%EC%84%B1%2C%20%EC%88%98%EC%A0%95%20%EA%B8%B0%EB%8A%A5%20%EA%B5%AC%ED%98%84/images/image2.png)
+
+![image3](https://raw.githubusercontent.com/yonggyo1125/curriculum300H/main/5.JSP2%20%26%20JSP%20%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8(60%EC%8B%9C%EA%B0%84)/12%EC%9D%BC%EC%B0%A8(3h)%20-%20%EA%B2%8C%EC%8B%9C%EA%B8%80%20%EC%9E%91%EC%84%B1%2C%20%EC%88%98%EC%A0%95%20%EA%B8%B0%EB%8A%A5%20%EA%B5%AC%ED%98%84/images/image3.png)
+
+![image4](https://raw.githubusercontent.com/yonggyo1125/curriculum300H/main/5.JSP2%20%26%20JSP%20%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8(60%EC%8B%9C%EA%B0%84)/12%EC%9D%BC%EC%B0%A8(3h)%20-%20%EA%B2%8C%EC%8B%9C%EA%B8%80%20%EC%9E%91%EC%84%B1%2C%20%EC%88%98%EC%A0%95%20%EA%B8%B0%EB%8A%A5%20%EA%B5%AC%ED%98%84/images/image4.png)
+
+![image5](https://raw.githubusercontent.com/yonggyo1125/curriculum300H/main/5.JSP2%20%26%20JSP%20%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8(60%EC%8B%9C%EA%B0%84)/12%EC%9D%BC%EC%B0%A8(3h)%20-%20%EA%B2%8C%EC%8B%9C%EA%B8%80%20%EC%9E%91%EC%84%B1%2C%20%EC%88%98%EC%A0%95%20%EA%B8%B0%EB%8A%A5%20%EA%B5%AC%ED%98%84/images/image5.png)
 
