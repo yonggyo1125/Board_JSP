@@ -776,6 +776,16 @@ GUEST_PW=비밀번호
 
 ADD_IMAGES=이미지 추가
 ADD_FILES=파일 추가
+
+# 유효성 검사
+NOT_EXISTS_BOARD=등록되지 않은 게시판입니다.
+REQUIRED_BOARD_ID=잘못된 접근입니다.
+REQUIRED_ID=잘못된 접근입니다.
+REQUIRED_GROUP_ID=잘못된 접근입니다.
+REQUIRED_SUBJECT=제목을 입력하세요.
+REQUIRED_POSTER=작성자를 입력하세요.
+REQUIRED_GUEST_PW=비회원 게시글 비밀번호를 입력하세요.
+REQUIRED_CONTENT=게시글을 입력하세요.
 ```
 
 #### src/main/webapp/WEB-INF/classes/board_en.properties 
@@ -795,8 +805,18 @@ POSTER=Poster
 REG_DT=Date
 GUEST_PW=Password
 
-ADD_IMAGES=Add Images
-ADD_FILES=Add Files
+ADD_IMAGES=Add images
+ADD_FILES=Add files
+
+# 유효성 검사
+NOT_EXISTS_BOARD = The board doesn't exists.
+REQUIRED_BOARD_ID=Wrong request
+REQUIRED_ID=Wrong request
+REQUIRED_GROUP_ID=Wrong request
+REQUIRED_SUBJECT=Please Input the subject.
+REQUIRED_POSTER=Please Input the poster.
+REQUIRED_GUEST_PW=Please Input the guest password.
+REQUIRED_CONTENT=Please Input the content.
 ```
 
 
