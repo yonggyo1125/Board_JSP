@@ -27,7 +27,9 @@ public class ViewService {
 		}
 		
 		// 게시글 접근 권한 체크
-		 BoardValidator.getInstance().permissionCheck(request, response);
+		if (request.getAttribute("isViewPage") == null) {
+			BoardValidator.getInstance().permissionCheck(request, response);
+		}
 		
 		ResourceBundle bundle = ResourceBundle.getBundle("bundle.board");
 		

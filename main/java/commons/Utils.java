@@ -78,7 +78,7 @@ public class Utils {
 	public static void go(HttpServletResponse response, String url, String target) {
 		try {
 			if (target == null) {
-				target="_self";
+				target="self";
 			}
 			response.setContentType("text/html; charset=utf-8");
 			PrintWriter out = response.getWriter();
@@ -91,7 +91,7 @@ public class Utils {
 	}
 	
 	public static void go(HttpServletResponse response, String url) {
-		go(response, url, "_self");
+		go(response, url, "self");
 	}
 	
 	/**
@@ -103,7 +103,7 @@ public class Utils {
 	public static void back(HttpServletResponse response, String target) {
 		try {
 			if (target == null) {
-				target="_self";
+				target="self";
 			}
 			response.setContentType("text/html; charset=utf-8");
 			PrintWriter out = response.getWriter();
@@ -116,7 +116,7 @@ public class Utils {
 	}
 	
 	public static void back(HttpServletResponse response) {
-		back(response, "_self");
+		back(response, "self");
 	}
 	
 	

@@ -18,7 +18,7 @@
 	
 	<!-- 파일 목록 조회  -->
 	<select id="files" parameterType="models.file.FileDto" resultMap="fileMap">
-		SELECT * FROM fileInfo WHERE gid=#{gid} ORDER BY id ASC;
+		SELECT * FROM fileInfo WHERE gid LIKE #{gid} ORDER BY id ASC;
 	</select>
 	
 	<!--  파일 업로드 완료 목록 내림차순 조회 -->

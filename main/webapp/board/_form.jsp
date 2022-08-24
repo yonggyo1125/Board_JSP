@@ -19,7 +19,7 @@
 		<input type="text" name="poster" value="${ empty board.poster ? member.memNm : board.poster }" placeholder="<fmt:message key="POSTER" />" />
 	</dd> 
 </dl>
-<c:if test="${ empty member || (!empty board && board.memNo == 0) }">
+<c:if test="${ empty member || (board != null && board.id != 0 && board.memNo == 0) }">
 <dl>
 	<dt class='mobile_hidden'>
 		<fmt:message key="GUEST_PW" />

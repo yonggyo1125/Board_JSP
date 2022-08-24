@@ -1,0 +1,21 @@
+/** 게시글 보기 */
+.body-board-view main { padding-bottom: 100px; }
+.body-board-view .top_box { display: flex; justify-content: space-between; border: 1px solid #212121; padding: 15px 10px; margin: 20px 0 10px;  }
+.body-board-view .top_box .left { font-size: 1.3rem; font-weight: bold; }
+.body-board-view .content_box { margin-bottom: 10px; }
+.body-board-view .subject { border: 1px solid #212121; padding: 15px 10px; font-size: 1.25rem; margin-bottom: 10px; font-weight: bold; }
+.body-board-view .content { border: 1px solid #212121; padding: 10px; min-height: 450px; }
+.body-board-view .content img { max-width: 1057px; }
+
+.attach_files { list-style: none; margin-bottom: 10px; }
+.attach_files li { border: 1px solid #d5d5d5; padding: 10px; background-color: #f8f8f8; margin-bottom: 2px; }
+.attach_files li a:hover { text-decoration: underline; }
+
+.board_btns { text-align: right; }
+.board_btns a { display: inline-block; background-color: #212121; color: #fff; height: 40px; line-height: 40px; padding: 0 18px; font-size: 1.2rem; border-radius: 5px; }
+.board_btns a:hover { background-color: #000; }
+.board_btns a i { color: #fff; font-size: 1.2rem; }
+
+@media all and (max-width: 500px) {
+	.body-board-view .content img { width: 100%; }
+}
