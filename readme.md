@@ -278,8 +278,6 @@ NO_POST=No post registered.
 		</c:forEach>.
 	</c:if>
 	</ul>
-	<!--  페이지네이션 출력  -->
-	<util:pagination page="${page}" total="${total}" pageCnt="5" url="/board/list?boardId=${boardInfo.boardId}" />
 </layout:main>
 ```
 * * * 
@@ -335,7 +333,7 @@ NO_POST=No post registered.
 	... 생략 
 	
 	<!--  페이지네이션 출력  -->
-	<util:pagination page="${page}" total="${total}" />
+	<util:pagination page="${page}" total="${total}" pageCnt="5" url="/board/list?boardId=${boardInfo.boardId}" />
 </layout:main>
 ```
 
