@@ -27,7 +27,13 @@
 	<select id="gets" parameterType="models.board.BoardListDto" resultMap="boardMap">
 		SELECT b.*, m.memId, m.memNm FROM boardData b 
 					LEFT JOIN member m ON b.memNo = m.memNo 
+			WHERE boardId=#{boardId} 
 			ORDER BY b.regDt DESC LIMIT #{offset}, #{limit};
+	</select>
+	
+	<!-- 전체 게시글 수  -->
+	<select id="total" parameterType="models.board.BoardDto" resultType="int">
+		SELECT COUNT(*) FROM boardData WHERE boardId=#{boardId};
 	</select>
 	
 	<!--  게시글 추가 -->

@@ -12,13 +12,15 @@ public class BoardDao {
 	
 	/**
 	 * 게시글 목록 
+	 * @param String boardId 게시판 아이디
 	 * @param page
 	 * @param limit
 	 * @return
 	 */
-	public List<BoardDto> gets(int page, int limit) {
+	public List<BoardDto> gets(String boardId, int page, int limit) {
 		SqlSession sqlSession = Connection.getSqlSession();
 		BoardListDto param = new BoardListDto();
+		param.setBoardId(boardId);
 		int offset = (page - 1) * limit;
 		param.setOffset(offset);
 		param.setLimit(limit);
@@ -29,12 +31,30 @@ public class BoardDao {
 		return posts;
 	}
 	
-	public List<BoardDto> gets(int page) {
-		return gets(page, 20);
+	public List<BoardDto> gets(String boardId,  int page) {
+		return gets(boardId, page, 20);
 	}
 	
-	public List<BoardDto> gets() {
-		return gets(1);
+	public List<BoardDto> gets(String boardId) {
+		return gets(boardId, 1);
+	}
+	
+	/**
+	 * 게시판별 총 게시글 수 
+	 * 
+	 * @param boardId
+	 * @return
+	 */
+	public int getTotal(String boardId) {
+		SqlSession sqlSession = Connection.getSqlSession();
+		
+		BoardDto param = new BoardDto();
+		param.setBoardId(boardId);
+		int total = sqlSession.selectOne("BoardMapper.total", param);
+		
+		sqlSession.close();
+		
+		return total;
 	}
 	
 	/**

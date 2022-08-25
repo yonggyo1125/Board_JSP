@@ -19,3 +19,16 @@
 @media all and (max-width: 500px) {
 	.body-board-view .content img { width: 100%; }
 }
+
+/** 게시글 목록 */
+
+.body-board-list .posts li.post { display: flex; justify-content: space-between; width: 100%; border-bottom: 1px solid #d5d5d5; padding: 0 10px; height: 45px; align-items: strech; }
+.body-board-list .posts li.post a, .body-board-list .posts .post_info { line-height: 43px; }
+.body-board-list .posts li:first-of-type { border-top: 1px solid #d5d5d5; }
+
+
+.body-board-list .list_top { display: flex; justify-content: space-between; margin-bottom: 10px; align-items: center; }
+
+.body-board-list .list_top .btn { border: 1px solid #212121; padding: 10px 15px; border-radius: 5px; }
+.body-board-list .list_top .btn:hover { background-color: #212121; color: #ffffff; }
+.body-board-list .list_top .btn:hover * { color: #ffffff; }

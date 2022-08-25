@@ -5,7 +5,7 @@
 html { font-size: 13px; }
 body { margin: 0; }
 a { text-decoration: none; }
-ul, ol, dl, dd, dt { margin: 0; padding: 0; }
+ul, ol, dl, dd, dt { margin: 0; padding: 0; list-style: none; }
 
 .layout_width { max-width: 1100px; margin: 0 auto;  padding: 0 10px; }
 .dn { display: none !important; }
