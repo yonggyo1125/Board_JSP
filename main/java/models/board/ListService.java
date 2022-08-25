@@ -54,7 +54,7 @@ public class ListService {
 		int total = dao.getTotal(boardId);
 		
 		Map<String,Object> results = new HashMap<>();
-		
+
 		results.put("page", page);
 		results.put("total", total);
 		results.put("posts", posts);

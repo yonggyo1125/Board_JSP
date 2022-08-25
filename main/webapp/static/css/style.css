@@ -61,6 +61,11 @@ input[type='checkbox']+label.standalone { padding: 0; height: 20px; width: 20px;
 #layer_popup .popup_title { border-bottom: 1px solid #000000;  margin-bottom: 20px; font-size: 1.15rem; font-weight: bold; padding: 0 5px 13px; }
 #layer_popup .layer_close { cursor: pointer; position: absolute; right: 10px; top: 10px; font-size: 1.8rem; }
 
+/** 페이지네이션 */
+.pagination { text-align: center; padding: 15px 0; }
+.pagination  a { display: inline-block; padding: 5px 10px; border: 1px solid #212121; border-radius: 5px; }
+.pagination  a.on { background-color: #212121; color: #ffffff; }
+
 /** 헤더 영역 */
 header .top_menu { background-color: #f8f8f8; border-bottom: 1px solid #d5d5d5; padding: 10px; }
 header .top_menu > div { text-align: right; }
