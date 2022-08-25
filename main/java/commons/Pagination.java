@@ -8,6 +8,7 @@ public class Pagination {
 	private int prevPage; // 이전 페이지 
 	private int nextPage; // 다음 페이지 
 	private int lastPage; // 마지막 페이지 
+	private int pageCnt; // 구간별 페이지 갯수 
 	private int[] pages; // 페이지 구간
 	
 	/**
@@ -17,7 +18,9 @@ public class Pagination {
 	 * @param {int} total : 전체 레코드 수 
 	 */
 	public Pagination(int page, int total) {
+		pageCnt = pageCnt < 1 ? 10:pageCnt;
 		
+		// 전체 레코드 수 
 	}
 	
 	public int getPage() {
