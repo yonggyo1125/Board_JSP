@@ -1,9 +1,16 @@
 <%@ tag description="메인 레이아웃" pageEncoding="UTF-8" %>
+<%@ tag import="java.util.List" %>
+<%@ tag import="models.admin.board.BoardAdminDao, models.admin.board.BoardAdminDto" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="layout" tagdir="/WEB-INF/tags/layouts" %>
 <%@ attribute name="title" type="java.lang.String" %>
 <%@ attribute name="bodyClass" type="java.lang.String" %>
+<%
+	BoardAdminDao dao = BoardAdminDao.getInstance();
+	List<BoardAdminDto> boards = dao.gets();
+%>
+<c:set var="boards" value="<%=boards%>" />
 <fmt:setBundle basename="bundle.common" />
 <layout:common title="${title}" bodyClass="${bodyClass}">
 	<jsp:attribute name="header">
@@ -33,10 +40,13 @@
 	<jsp:attribute name="main_menu">
 	<nav>
 		<div class='layout_width'>
-			<a href='#'>메뉴1</a>
-			<a href='#'>메뉴2</a>
-			<a href='#'>메뉴3</a>
-			<a href='#'>메뉴4</a>
+		<c:if test="${ !empty boards}">
+			<c:forEach var="board" items="${boards}">
+				<c:if test="${board.isUse == 1}">
+					<a href="<c:url value="/board/list?boardId=${board.boardId}" />">${board.boardNm}</a>
+				</c:if>
+			</c:forEach>	
+		</c:if> 
 		</div>
 	</nav>
 	</jsp:attribute>

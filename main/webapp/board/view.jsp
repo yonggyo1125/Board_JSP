@@ -3,6 +3,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="layout" tagdir="/WEB-INF/tags/layouts" %>
 <%@ taglib prefix="util" tagdir="/WEB-INF/tags/utils" %>
+<%@ taglib prefix="board" tagdir="/WEB-INF/tags/board" %>
 <fmt:setBundle basename="bundle.board" />
 <layout:main title="${title}" bodyClass="board-view">
 	<div class='top_box'>
@@ -50,4 +51,8 @@
 			<fmt:message key="LIST" />
 		</a>
 	</div>
+	<c:if test="${boardInfo.useComment == 1 }">
+		<!--  댓글 영역 -->
+		<board:comment id="${board.id}"/>
+	</c:if>
 </layout:main>
