@@ -5,14 +5,14 @@
 <form id="frmComment" name="frmComment" method="post" action="<c:url value="/board/comment" />" target="ifrmProcess" autocomplete="off">
 	<input type="hidden" name="id" value="${id}" /> 
 	<div class="ctop_box">
-		작성자<input type="text" name="poster" value="${member.memNm}">
+		작성자 <input type="text" name="poster" value="${member.memNm}">
 		<c:if test="${ empty member }">
-		/ 비밀번호<input type="password" name="guestPw">
+		/ 비밀번호 <input type="password" name="guestPw">
 		</c:if>
 	</div>
 	<!--// top_box -->
 	<div class='comment_box'>
-		<textarea name="content"></textarea>
+		<textarea name="content" placeholder="댓글일 입력하세요..."></textarea>
 		<button type="submit" id="comment_submit">댓글작성</button>
 	</div>
 </form>

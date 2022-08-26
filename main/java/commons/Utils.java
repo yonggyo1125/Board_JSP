@@ -73,7 +73,7 @@ public class Utils {
 	 * 
 	 * @param {HttpServletResponse} response
 	 * @param {String} url  이동 URL 
-	 * @param {String} target  : _self, parent, _blank(새창), _top   
+	 * @param {String} target  : self, parent, top   
 	 */
 	public static void go(HttpServletResponse response, String url, String target) {
 		try {
@@ -98,7 +98,7 @@ public class Utils {
 	 * history.back 처리 
 	 *  
 	 * @param {HttpServletResponse} response
-	 * @param {String} target  : _self, parent, _blank(새창), _top   
+	 * @param {String} target  : self, parent, top   
 	 */
 	public static void back(HttpServletResponse response, String target) {
 		try {

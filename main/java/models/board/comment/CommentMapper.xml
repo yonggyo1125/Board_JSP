@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="CommentMapper">
+	<resultMap id="commentMap" type="models.board.comment.CommentDto">
+		<result property="id" column="id" />
+		<result property="boardDataId" column="boardDataId" />
+		<result property="memNo" column="memNo" />
+		<result property="poster" column="poster" />
+		<result property="content" column="content" />
+		<result property="regDt" column="regDt" />
+		<result property="modDt" column="modDt" />
+	</resultMap>
+	
+	<!-- 댓글 조회  -->
+	<select id="get" parameterType="models.board.comment.CommentDto" resultMap="commentMap">
+		SELECT c.*, m.memNm, m.memId FROM commentData c 
+						LEFT JOIN member m ON c.memNo = m.memNo WHERE c.id = #{id};
+	</select>
+	
+	<!--  댓글 목록 조회 -->
+	<select id="gets" parameterType="models.board.comment.CommentDto" resultMap="commentMap">
+		SELECT c.*, m.memNm, m.memId FROM commentData c 
+			LEFT JOIN member m ON c.memNo = m.memNo WHERE c.boardDataId = #{boardDataId} ORDER BY c.regDt;
+	</select>
+	
+	<!-- 댓글 추가  -->
+	<insert id="register" parameterType="models.board.comment.CommentDto" 
+			useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO commentData (boardDataId, memNo, poster, guestPw, content)
+			VALUES (#{boardDataId}, #{memNo}, #{poster}, #{guestPw}, #{content});
+	</insert>
+	
+	<!-- 댓글 수정 -->
+	<update id="update" parameterType="models.board.comment.CommentDto">
+		UPDATE commentData
+			SET 
+				poster=#{poster},
+				guestPw=#{guestPw},
+				content=#{content},
+				modDt=NOW()
+			WHERE id=#{id};
+	</update>
+	
+	<!-- 댓글 삭제  -->
+	<delete id="delete" parameterType="models.board.comment.CommentDto">
+		DELETE FROM commentData FROM id=#{id};
+	</delete>
+</mapper>
