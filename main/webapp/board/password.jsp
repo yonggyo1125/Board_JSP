@@ -6,8 +6,17 @@
 <fmt:message var="title" key="BOARD_PASSWORD" />
 <layout:main title="${title}" bodyClass="board_password">
 <h1 class="mtitle">${title}</h1>
-<form class="form_box" method="post" action="<c:url value="/board/password" />" target="ifrmProcess" autocomplete="off">
-	<input type="hidden" name="id" value="${board.id}">
+<c:if test="${isComment == null}">
+<c:url var="actionUrl" value="/board/password" />
+<c:set var="id" value="${board.id}" />
+</c:if>
+<c:if test="${isComment != null}">
+<c:url var="actionUrl" value="/board/comment/password" />
+<c:set var="id" value="${comment.id}" />
+</c:if>
+
+<form class="form_box" method="post" action="${actionUrl}" target="ifrmProcess" autocomplete="off">
+	<input type="hidden" name="id" value="${id}">
 	<dl>
 		<dt class='mobile_hidden'>
 			<fmt:message key="GUEST_PW" />

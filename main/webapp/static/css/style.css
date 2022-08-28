@@ -25,6 +25,7 @@ input[type='text'],
 input[type='password'],
 input[type='number'],
 input[type='email'] { width: 100%; height: 40px; border: 1px solid #d5d5d5; padding: 0 10px; border-radius: 3px; }
+textarea { border: 1px solid #d5d5d5; width: 100%; resize: none; height: 100px; }
 
 input[type='radio'] { display: none; }
 input[type='radio']+label { display: inline-block; padding-left: 25px; padding-right: 15px; min-height: 20px; background:url("../images/radio-off.png") no-repeat left center; line-height: 20px; cursor: pointer; }

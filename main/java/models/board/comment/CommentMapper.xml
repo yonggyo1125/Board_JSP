@@ -43,6 +43,6 @@
 	
 	<!-- 댓글 삭제  -->
 	<delete id="delete" parameterType="models.board.comment.CommentDto">
-		DELETE FROM commentData FROM id=#{id};
+		DELETE FROM commentData WHERE id=#{id};
 	</delete>
 </mapper>

@@ -8,6 +8,10 @@ import mybatis.Connection;
 
 public class CommentDao {
 	
+	private static CommentDao instance = new CommentDao();
+	
+	private CommentDao() {}
+	
 	/**
 	 * 댓글 조회 
 	 * 
@@ -97,5 +101,13 @@ public class CommentDao {
 		sqlSession.close();
 		
 		return affectedRows > 0;
+	}
+	
+	public static CommentDao getInstance() {
+		if (instance == null) {
+			instance = new CommentDao();
+		}
+		
+		return instance;
 	}
 }

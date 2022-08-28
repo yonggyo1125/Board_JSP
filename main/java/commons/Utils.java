@@ -119,7 +119,26 @@ public class Utils {
 		back(response, "self");
 	}
 	
+	/**
+	 * 페이지 새로고침 
+	 * 
+	 * @param {HttpServletResponse} response
+	 * @param {String} target : self, parent, top
+	 */
+	public static void reload(HttpServletResponse response, String target) {
+		try {
+			if (target == null || target.isBlank()) target = "self";
+			response.setContentType("text/html; charset=utf-8");
+			PrintWriter out = response.getWriter();
+			out.printf("<script>%s.location.reload();</script>", target);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 	
+	public static void reload(HttpServletResponse response) {
+		reload(response, "self");
+	}
 	
 	/**
 	 * 로그인 여부 체크 
